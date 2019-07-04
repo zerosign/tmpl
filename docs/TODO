@@ -1,0 +1,18 @@
+
+// ForStatement { children: []Statement, key: Ident, value: Ident, data: Expression }
+
+Content { }
+
+{# all function being declared in template are always returns String #}
+{{ func database_template(key: String, value: Value) do }}
+{= key =}:
+   hosts: {= expand("yaml", value.hosts, pretty=true) =}
+   username: {= value.username =}
+   password: {= decrypt("", "", value.password) =}
+{{ end }}
+
+
+databases:
+{{ for { key: String, value: Value } in rlookup("vault", "") do }}
+   {= database_template(key, value) =}
+{{ end }}

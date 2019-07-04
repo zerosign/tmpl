@@ -1,0 +1,75 @@
+<whitespace>    ::= '\n' | '\t' | '\r' | ' '
+<quote>         ::= '"'
+<digit_without_zero> ::= '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9'
+<digit_zero>    ::= '0'
+<digit>         ::= <digit_zero> | <digit_without_zero>
+<uppercase_letter> ::= 'A' | 'B' | 'C' | 'D' | 'E' | 'F' | 'G' | 'H' | 'I' | 'J' | 'K' | 'L' | 'M' | 'N' | 'O' | 'P' | 'Q' | 'R' | 'S' | 'T' | 'U' | 'V' | 'W' | 'X' | 'Y' | 'Z'
+<lowercase_letter> ::= 'a' | 'b' | 'c' | 'd' | 'e' | 'f' | 'g' | 'h' | 'i' | 'j' | 'k' | 'l' | 'm' | 'n' | 'o' | 'p' | 'q' | 'r' | 's' | 't' | 'u' | 'v' | 'w' | 'x' | 'y' | 'z'
+<letter>        ::=  <uppercase_letter> | <lowercase_letter>
+<symbol>        ::= '_' | '-' | "'"
+<token_dot>     ::= '.'
+<char>          ::= <letter> | <digit> | <symbol>
+<true>          ::= "true"
+<false>         ::= "false"
+<boolean>       ::= <true> | <false>
+<integer>       ::= (<digit_without_zero>+ <digit>*) | <digit_zero>
+<float>         ::= <integer> <token_dot> <digit>*
+<string>        ::= ( <char> | <whitespace> )*
+<quoted_string> ::= <quote> <string> <quote>
+<primitive>     ::=  <boolean> | <integer> | <float> | <quoted_string>
+
+<brace_open>    ::= '{'
+<brace_close>   ::= '}'
+<token_comma>   ::= ','
+<token_colon>   ::= ':'
+<para_open>     ::= '('
+<para_close>    ::= ')'
+<bracket_open>  ::= '['
+<bracket_close> ::= ']'
+
+<array_decl>    ::= <bracket_open> (<primitive> (<token_comma> <primitive>)*)? <bracket_close>
+<map_decl>      ::= <brace_open> <quoted_string> <token_colon> (<primitive> | <array_decl> | <map_decl>) <brace_close>
+
+<ident>         ::= <letter> (<integer> | <letter> | <symbol>)*
+<function_call> ::= <ident> <para_open> <ident> (<token_comma> <ident>)* <para_close>
+
+<keyword_do>    ::= "do"
+
+<keyword_end>   ::= "end"
+<keyword_else>  ::= "else"
+<keyword_elsif> ::= "elsif"
+<keyword_if>    ::= "if"
+
+<block_open>  ::= "{{"
+<block_close> ::= "}}"
+
+<block_comment_open> ::= "{#"
+<block_comment_close> ::= "#}"
+
+<block_assign_open> ::= "{="
+<block_assign_close> ::= "=}"
+
+<cond_expr_decl>  ::= <keyword_if> <expr> <keyword_do>
+<cond_expr_alt>   ::= <keyword_elsif> <expr> <keyword_do>
+<cond_expr_other> ::= <keyword_else> <expr> <keyword_do>
+
+<block_cond> ::=
+   (<block_open> <cond_expr_decl> <block_close> <block_region> <block_open>)
+   ((<cond_expr_alt> <block_close> <block_region> <block_open>)+ |
+    (<cond_expr_other> <block_close>))
+
+<keyword_for>   ::= "for"
+<keyword_in>    ::= "in"
+
+<type_decl> ::= <uppercase_letter> (<lowercase_letter>)*
+<declaration> ::= <ident> (<token_colon> <type_decl>)? (<token_comma> <declaration>)?
+<loop_expr_decl> ::= <keyword_for> <brace_open> <ident> (<token_colon> <type_decl>) <token_comma> <ident> <brace_close> <keyword_in> <expr> <keyword_do>
+
+<block_loop> ::=
+   <block_open> <loop_expr_decl> <block_close> <block_region> <block_open> <keyword_end> <block_close>
+
+; TODO : region or statement ?
+<empty_region> ::= <whitespace>
+
+<block_region> ::=
+   <empty_region>
