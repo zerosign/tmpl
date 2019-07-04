@@ -1,4 +1,4 @@
-package grammar
+package tmpl
 
 //
 // A helper like strings.HasPrefix (as look ahead pointer).
