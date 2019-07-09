@@ -1,34 +1,35 @@
-package statefn
+package flow
 
 import (
-	"github.com/zerosign/tmpl/lexer"
-	"github.com/zerosign/tmpl/lexer/token"
+	"github.com/zerosign/tmpl/base"
+	"github.com/zerosign/tmpl/runes"
+	"github.com/zerosign/tmpl/token"
 	"log"
-	"unicode"
 )
 
 // LexText: lexing general text outside block template grammar.
 //
 //
-func LexText(l *lexer.Lexer) (lexer.StateFn, error) {
+func LexText(l base.Lexer) (Flow, error) {
 	log.Println("enter logText")
 	defer log.Println("leaving logText")
 
 	for {
 		value := l.RunesAhead()
+		cursor := l.Cursor()
 
-		if HasPrefix(value, token.BlockExprOpen) {
-			if l.current > l.start {
-				l.Emit(TokenText)
+		if runes.HasPrefix(value, token.BlockExprOpen) {
+			if cursor.IsValid() {
+				l.Emit(token.TokenText)
 			}
 			return LexBlockExprOpen, nil
-		} else if HasPrefix(value, token.BlockCommentOpen) {
-			if l.current > l.start {
+		} else if runes.HasPrefix(value, token.BlockCommentOpen) {
+			if cursor.IsValid() {
 				l.Emit(token.TokenBlockCommentOpen)
 			}
 			return LexBlockCommentOpen, nil
-		} else if HasPrefix(value, token.BlockAssignOpen) {
-			if l.current > l.start {
+		} else if runes.HasPrefix(value, token.BlockAssignOpen) {
+			if cursor.IsValid() {
 				l.Emit(token.TokenBlockAssignOpen)
 			}
 			return LexBlockAssignOpen, nil
@@ -43,7 +44,7 @@ func LexText(l *lexer.Lexer) (lexer.StateFn, error) {
 
 	// emit current token type (Token)
 	// since it's eof
-	l.Emit(TokenText)
+	l.Emit(token.TokenText)
 
 	// stop the lexer loop
 	return nil, nil

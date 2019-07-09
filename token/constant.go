@@ -3,7 +3,7 @@ package token
 // Constant variable for each Token type.
 //
 // We don't model error type as TokenType since we have an explicit
-// error value return for each StateFn.
+// error value return for each Flow.
 //
 const (
 	TokenText Type = iota

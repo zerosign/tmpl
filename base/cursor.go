@@ -1,4 +1,4 @@
-package lexer
+package base
 
 import (
 	"fmt"
@@ -39,8 +39,8 @@ func (c *Cursor) Next() {
 
 // Incr: increment cursor by c.
 //
-func (c *Cursor) Incr(c int) {
-	c.current += c
+func (c *Cursor) Incr(v int) {
+	c.current += v
 }
 
 // Reset: reset the cursor to start=0, current=0.
@@ -56,8 +56,12 @@ func (c *Cursor) Advance() {
 	c.start = c.current
 }
 
+func (c Cursor) IsValid() bool {
+	return c.current > c.start
+}
+
 // String: String representation for Cursor.
 //
 func (c Cursor) String() string {
-	return fmt.Sprintf("<position{start=%d, current=%d}>", c.start, c.current)
+	return fmt.Sprintf("<cursor{start=%d, current=%d}>", c.start, c.current)
 }

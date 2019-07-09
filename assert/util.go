@@ -1,26 +1,16 @@
-package tmpl
+package assert
 
-package (
+import (
+	"github.com/zerosign/tmpl/base"
+	"github.com/zerosign/tmpl/token"
 	"testing"
 )
-
-// AssertNewLexer: Utility function for creating new lexer
-//
-// will raise fatal error if fails
-//
-func AssertNewLexer(t *testing.T, input string) *Lexer {
-	lexer, err := NewLexer(input)
-	if err != nil {
-		t.Fatal(err)
-	}
-	return lexer
-}
 
 // AssertNextToken: Utility function for fetching next token
 //
 // will raise fatal error if fails
 //
-func AssertNextToken(t *testing.T, lexer *Lexer) *Token {
+func AssertNextToken(t *testing.T, lexer base.Lexer) *token.Token {
 	token, err := lexer.Next()
 
 	if err != nil {
@@ -34,7 +24,7 @@ func AssertNextToken(t *testing.T, lexer *Lexer) *Token {
 //
 // will raise fatal error if fails
 //
-func AssertToken(t *testing.T, result *Token, expected TokenType) {
+func AssertToken(t *testing.T, result *token.Token, expected token.Type) {
 	if result.Type != expected {
 		t.Fatalf("token should be %s but got %s", expected.String(), result)
 	}
@@ -44,8 +34,8 @@ func AssertToken(t *testing.T, result *Token, expected TokenType) {
 //
 // will raise fatal error if one of expected token aren't equal (in order).
 //
-func AssertTokens(t *testing.T, lexer *Lexer, expectedTypes []TokenType) {
-	var token *Token
+func AssertTokens(t *testing.T, lexer base.Lexer, expectedTypes []token.Type) {
+	var token *token.Token
 
 	for ii := 0; ii < len(expectedTypes); ii += 1 {
 		if lexer.HasNext() {

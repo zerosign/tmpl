@@ -1,17 +1,19 @@
-package statefn
+package flow
 
 import (
-	"github.com/zerosign/tmpl/lexer"
+	"github.com/zerosign/tmpl/base"
+	"github.com/zerosign/tmpl/runes"
+	"github.com/zerosign/tmpl/token"
 	"log"
 )
 
 // LexBlockCommentOpen: lexing start of the comment block
 //
 //
-func LexBlockCommentOpen(l *lexer.Lexer) (StateFn, error) {
+func LexBlockCommentOpen(l base.Lexer) (Flow, error) {
 	log.Println("enter logBlockCommentOpen")
-	l.current += len(token.BlockCommentOpen)
-	l.Emit(TokenBlockCommentOpen)
+	l.CursorMut().Incr(len(token.BlockCommentOpen))
+	l.Emit(token.TokenBlockCommentOpen)
 	return LexCommentBlock, nil
 }
 
@@ -20,11 +22,11 @@ func LexBlockCommentOpen(l *lexer.Lexer) (StateFn, error) {
 // block region contains :
 // - consume everything until found BlockCommentClose
 //
-func LexCommentBlock(l *Lexer) (StateFn, error) {
+func LexCommentBlock(l base.Lexer) (Flow, error) {
 	log.Println("enter logCommentBlock")
 	for {
-		value := l.inner[l.current:]
-		if HasPrefix(value, token.BlockCommentClose) {
+		value := l.RunesAhead()
+		if runes.HasPrefix(value, token.BlockCommentClose) {
 			l.Emit(token.TokenBlockComment)
 			return LexCommentBlockClose, nil
 		}
@@ -35,15 +37,15 @@ func LexCommentBlock(l *Lexer) (StateFn, error) {
 			break
 		}
 	}
-	return nil, NoMatchToken("comment", [][]rune{BlockCommentClose})
+	return nil, NoMatchToken("comment", [][]rune{token.BlockCommentClose})
 }
 
 // LexCommentBlockClose: lexing close block of the comment block
 //
 //
-func LexCommentBlockClose(l *Lexer) (StateFn, error) {
+func LexCommentBlockClose(l base.Lexer) (Flow, error) {
 	log.Println("enter logCommentBlockClose")
-	l.current += len(BlockCommentClose)
-	l.Emit(TokenBlockCommentClose)
+	l.CursorMut().Incr(len(token.BlockCommentClose))
+	l.Emit(token.TokenBlockCommentClose)
 	return LexText, nil
 }

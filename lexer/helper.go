@@ -1,38 +1,18 @@
 package lexer
 
-//
-// A helper like strings.HasPrefix (as look ahead pointer).
-//
-// returns true if source has prefix as prefix
-//         false otherwise
-//
-func HasPrefix(source []rune, prefix []rune) bool {
-	size := len(prefix)
-	flag := true
+import (
+	"github.com/zerosign/tmpl/base"
+)
 
-	// since the source is smaller
-	if len(source) < size {
-		return false
+// AssertNewLexer: Utility function for creating new lexer
+//
+// will raise fatal error if fails
+//
+func UnsafeNewLexer(input string) base.Lexer {
+	nlexer, err := DefaultLexer(input)
+	if err != nil {
+		panic(err)
 	}
 
-	for ii := 0; ii < size; ii += 1 {
-		flag = flag && (source[ii] == prefix[ii])
-	}
-
-	return flag
-}
-
-func RuneStrSep(runes [][]rune, ch rune) string {
-	var buffer []rune = make([]rune, 0)
-
-	for ii := 0; ii < len(runes); ii += 1 {
-		buffer = append(buffer, runes[ii]...)
-
-		// if we still have next
-		if ii < (len(runes) - 1) {
-			buffer = append(buffer, []rune{' ', ch}...)
-		}
-	}
-
-	return string(buffer)
+	return nlexer
 }

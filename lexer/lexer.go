@@ -2,48 +2,57 @@ package lexer
 
 import (
 	"fmt"
+	"github.com/zerosign/tmpl/base"
+	"github.com/zerosign/tmpl/lexer/flow"
+	"github.com/zerosign/tmpl/token"
 	"log"
 	"unicode/utf8"
 )
 
-type Lexer struct {
+// GenLexer : types that implement lexer.Lexer for this language
+//
+//
+type GenLexer struct {
 	inner  []rune
-	cursor Cursor
-	state  StateFn
-	tokens chan Token
+	cursor base.Cursor
+	flow   flow.Flow
+	tokens chan token.Token
 }
 
-// Taken from angstrom ocaml
-// - skip_while
-// - skip
-// - take_while
-// - advance
-// - any_int
-
-// NewLexer: create new lexer based on string.
+// NewLexer: create new lexer based on string by specifying initial state.
 //
 // This method checks whether input string are valid utf8 string or not.
 // If the string are invalid utf8 string, this method will returns error.
 //
-func NewLexer(input string) (*Lexer, error) {
+func NewLexer(input string, initial flow.Flow) (base.Lexer, error) {
 
 	if !utf8.ValidString(input) {
 		return nil, InvalidUtfInput()
 	}
 
-	lexer := Lexer{
+	lexer := GenLexer{
 		inner:  []rune(input),
-		cursor: ZeroCursor(),
-		state:  lexText,
-		tokens: make(chan Token, 2),
+		cursor: base.ZeroCursor(),
+		flow:   initial,
+		tokens: make(chan token.Token, 2),
 	}
 
 	return &lexer, nil
 }
 
+// DefaultLexer: create new lexer based on string by assuming
+//               first state will be a text.
+//
+// This method checks whether input string are valid utf8 string or not.
+// If the string are invalid utf8 string, this method will returns error.
+//
+func DefaultLexer(input string) (base.Lexer, error) {
+	return NewLexer(input, flow.LexText)
+}
+
 // Cursor: Get current cursor
 //
-func (l Lexer) Cursor() Cursor {
+func (l GenLexer) Cursor() base.Cursor {
 	return l.cursor
 }
 
@@ -51,72 +60,72 @@ func (l Lexer) Cursor() Cursor {
 //
 // Being used for `in-place` update.
 //
-func (l *Lexer) CursorMut() *Cursor {
+func (l *GenLexer) CursorMut() *base.Cursor {
 	return &l.cursor
 }
 
 // HasNext: Check whether there is next state function or not
 //
-func (l Lexer) HasNext() bool {
-	return l.state != nil
+func (l GenLexer) HasNext() bool {
+	return l.flow != nil
 }
 
 // Next: Get next token in the lexer queue.
 //
-func (l *Lexer) Next() (Token, error) {
+func (l *GenLexer) Next() (token.Token, error) {
 	var err error
-	var token Token
+	var t token.Token
 
 	if l.HasNext() {
-		l.state, err = l.state(l)
+		l.flow, err = l.flow(l)
 		if err != nil {
-			return Token{}, err
+			return token.Token{}, err
 		}
 
-		token = <-l.tokens
+		t = <-l.tokens
 	}
 
-	return token, nil
+	return t, nil
 }
 
 // Advance: Advance the cursor in lexer.
 //
-func (l *Lexer) Advance() {
+func (l *GenLexer) Advance() {
 	// beware cursor.Next ~ lexer.Advance
 	l.cursor.Next()
 }
 
 // Available: Check availability of next character
 //
-func (l Lexer) Available() bool {
+func (l GenLexer) Available() bool {
 	return l.cursor.Current()+1 < len(l.inner)
 }
 
-func (l Lexer) Emit(t TokenType) {
+func (l GenLexer) Emit(t token.Type) {
 	cursor := l.Cursor()
 
 	// need l.current-1, since it's being prefixed with the next token
 	value := l.inner[cursor.Start() : l.cursor.Current()-1]
 
-	l.tokens <- Token{t, value}
+	l.tokens <- token.Token{t, value}
 	// assign l.start with l.current, means
 	// the range (l.start..l.current) already being
 	// consumed by the lexer
-	l.start = l.current
+	l.CursorMut().Advance()
 }
 
-func (l Lexer) RunesAhead() []rune {
+func (l GenLexer) RunesAhead() []rune {
 	return l.inner[l.cursor.Current():]
 }
 
-func (l Lexer) CurrentRune() rune {
+func (l GenLexer) CurrentRune() rune {
 	return l.inner[l.cursor.Current()]
 }
 
 //
 // Note: This advance current cursor
 //
-func (l Lexer) TakeWhile(conds ...RuneCond) {
+func (l GenLexer) TakeWhile(conds ...token.RuneCond) {
 
 	flag := true
 
@@ -136,7 +145,7 @@ func (l Lexer) TakeWhile(conds ...RuneCond) {
 //
 // Note: This advance current cursor
 //
-func (l Lexer) AcceptAll(conds ...RuneCond) bool {
+func (l GenLexer) AcceptAll(conds ...token.RuneCond) bool {
 	flag := true
 
 	for _, cond := range conds {
@@ -149,7 +158,7 @@ func (l Lexer) AcceptAll(conds ...RuneCond) bool {
 //
 // Note: This advance current cursor
 //
-func (l Lexer) AcceptUntil(conds ...RuneCond) bool {
+func (l GenLexer) AcceptUntil(conds ...token.RuneCond) bool {
 	flag := true
 
 	for {
@@ -168,7 +177,7 @@ func (l Lexer) AcceptUntil(conds ...RuneCond) bool {
 //
 // Note: This advance current cursor
 //
-func (l Lexer) Accept(cond RuneCond) bool {
+func (l GenLexer) Accept(cond token.RuneCond) bool {
 	if cond(l.CurrentRune()) {
 		if l.Available() {
 			l.Advance()
@@ -180,7 +189,7 @@ func (l Lexer) Accept(cond RuneCond) bool {
 	return false
 }
 
-func (l Lexer) Ignore(cond RuneCond) {
+func (l GenLexer) Ignore(cond token.RuneCond) {
 	for {
 		ch := l.CurrentRune()
 		if cond(ch) && l.Available() {
@@ -191,10 +200,12 @@ func (l Lexer) Ignore(cond RuneCond) {
 	}
 }
 
-func (l Lexer) String() string {
-	return fmt.Sprintf("<lexer{position=%s}>", l.Position())
+func (l GenLexer) String() string {
+	return fmt.Sprintf("<lexer{cursor=%s,state=%s}>", l.Cursor(), l.flow)
 }
 
-func (l Lexer) Close() {
+func (l GenLexer) Close() error {
+	close(l.tokens)
 	log.Println("lexer is closed")
+	return nil
 }
