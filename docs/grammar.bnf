@@ -68,8 +68,10 @@
 <block_loop> ::=
    <block_open> <loop_expr_decl> <block_close> <block_region> <block_open> <keyword_end> <block_close>
 
-; TODO : region or statement ?
+; TODO : @zerosign : region or statement ?
 <empty_region> ::= <whitespace>
-
+; TODO : @zerosign
 <block_region> ::=
    <empty_region>
+
+<template> ::= (<block> | <text>)*

@@ -1,0 +1,5 @@
+package tmpl
+
+import (
+	"testing"
+)

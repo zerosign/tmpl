@@ -1,51 +1,10 @@
-package tmpl
+package statefn
 
 import (
-	// 	"fmt"
+	"github.com/zerosign/tmpl/lexer"
 	"log"
-	// 	"reflect"
-	// 	"runtime"
 	"unicode"
 )
-
-func lexText(l *Lexer) (StateFn, error) {
-	log.Println("enter logText")
-	defer log.Println("leaving logText")
-
-	for {
-		value := l.RunesAhead()
-
-		if HasPrefix(value, BlockExprOpen) {
-			if l.current > l.start {
-				l.Emit(TokenText)
-			}
-			return lexBlockExprOpen, nil
-		} else if HasPrefix(value, BlockCommentOpen) {
-			if l.current > l.start {
-				l.Emit(TokenBlockCommentOpen)
-			}
-			return lexBlockCommentOpen, nil
-		} else if HasPrefix(value, BlockAssignOpen) {
-			if l.current > l.start {
-				l.Emit(TokenBlockAssignOpen)
-			}
-			return lexBlockAssignOpen, nil
-		}
-
-		if l.HasNext() {
-			l.Advance()
-		} else {
-			break
-		}
-	}
-
-	// emit current token type (Token)
-	// since it's eof
-	l.Emit(TokenText)
-
-	// stop the lexer loop
-	return nil, nil
-}
 
 func lexBlockExprOpen(l *Lexer) (StateFn, error) {
 	log.Println("enter logBlockExprOpen")
@@ -61,13 +20,6 @@ func lexBlockAssignOpen(l *Lexer) (StateFn, error) {
 	l.current += len(BlockAssignOpen)
 	l.Emit(TokenBlockAssignOpen)
 	return lexAssignBlock, nil
-}
-
-func lexBlockCommentOpen(l *Lexer) (StateFn, error) {
-	log.Println("enter logBlockCommentOpen")
-	l.current += len(BlockCommentOpen)
-	l.Emit(TokenBlockCommentOpen)
-	return lexCommentBlock, nil
 }
 
 //
@@ -196,33 +148,4 @@ func lexIfStatement(l *Lexer) (StateFn, error) {
 func lexAssignBlock(l *Lexer) (StateFn, error) {
 	log.Println("enter logAssignBlock")
 	return nil, nil
-}
-
-//
-// block region contains :
-// - consume everything until found BlockCommentClose
-//
-func lexCommentBlock(l *Lexer) (StateFn, error) {
-	log.Println("enter logCommentBlock")
-	for {
-		value := l.inner[l.current:]
-		if HasPrefix(value, BlockCommentClose) {
-			l.Emit(TokenBlockComment)
-			return lexCommentBlockClose, nil
-		}
-
-		if l.HasNext() {
-			l.Advance()
-		} else {
-			break
-		}
-	}
-	return nil, NoMatchToken("comment", [][]rune{BlockCommentClose})
-}
-
-func lexCommentBlockClose(l *Lexer) (StateFn, error) {
-	log.Println("enter logCommentBlockClose")
-	l.current += len(BlockCommentClose)
-	l.Emit(TokenBlockCommentClose)
-	return lexText, nil
 }

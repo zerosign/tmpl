@@ -11,7 +11,6 @@ Content { }
    password: {= decrypt("", "", value.password) =}
 {{ end }}
 
-
 databases:
 {{ for { key: String, value: Value } in rlookup("vault", "") do }}
    {= database_template(key, value) =}
