@@ -7,32 +7,25 @@ import (
 	"log"
 )
 
+var (
+	NextStateTokens = [][]rune{token.BlockExprOpen, token.BlockAssignOpen, token.BlockCommentOpen}
+)
+
 // LexText: lexing general text outside block template grammar.
 //
 //
 func LexText(l base.Lexer) (Flow, error) {
-	log.Println("enter logText")
-	defer log.Println("leaving logText")
+	var value []rune
+
+	log.Println("enter LexText")
+	defer log.Println("exit LexText")
 
 	for {
-		value := l.RunesAhead()
-		cursor := l.Cursor()
+		value = l.RunesAhead()
 
-		if runes.HasPrefix(value, token.BlockExprOpen) {
-			if cursor.IsValid() {
-				l.Emit(token.TokenText)
-			}
-			return LexBlockExprOpen, nil
-		} else if runes.HasPrefix(value, token.BlockCommentOpen) {
-			if cursor.IsValid() {
-				l.Emit(token.TokenBlockCommentOpen)
-			}
-			return LexBlockCommentOpen, nil
-		} else if runes.HasPrefix(value, token.BlockAssignOpen) {
-			if cursor.IsValid() {
-				l.Emit(token.TokenBlockAssignOpen)
-			}
-			return LexBlockAssignOpen, nil
+		// scan for it siblings token
+		if runes.HasAllPrefixes(value, NextStateTokens) {
+			break
 		}
 
 		if l.Available() {
@@ -42,10 +35,8 @@ func LexText(l base.Lexer) (Flow, error) {
 		}
 	}
 
-	// emit current token type (Token)
-	// since it's eof
+	// emit last token that being scanned (in here token.TokenText)
 	l.Emit(token.TokenText)
 
-	// stop the lexer loop
-	return nil, nil
+	return LexTemplate, nil
 }

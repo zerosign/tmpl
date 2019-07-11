@@ -1,6 +1,7 @@
 package lexer
 
 import (
+	"fmt"
 	"github.com/zerosign/tmpl/base"
 )
 
@@ -10,6 +11,9 @@ import (
 //
 func UnsafeNewLexer(input string) base.Lexer {
 	nlexer, err := DefaultLexer(input)
+
+	fmt.Print(input)
+
 	if err != nil {
 		panic(err)
 	}

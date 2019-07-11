@@ -36,10 +36,10 @@ func AssertToken(t *testing.T, result *token.Token, expected token.Type) {
 //
 func AssertTokens(t *testing.T, lexer base.Lexer, expectedTypes []token.Type) {
 	var token *token.Token
-
 	for ii := 0; ii < len(expectedTypes); ii += 1 {
 		if lexer.HasNext() {
 			token = AssertNextToken(t, lexer)
+			t.Logf("asserted_token: %v", token)
 			AssertToken(t, token, expectedTypes[ii])
 		} else {
 			t.Fatalf("lexer should have at least %d tokens left but got 0", len(expectedTypes)-ii)

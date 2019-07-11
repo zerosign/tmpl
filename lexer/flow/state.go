@@ -1,92 +1,40 @@
 package flow
 
-// //
-// // for { key : String , value : Value } in (expr) do
-// //
-// func lexForStatement(l *lexer.Lexer) (lexer.Flow, error) {
+import (
+	"github.com/zerosign/tmpl/base"
+	"github.com/zerosign/tmpl/runes"
+	"github.com/zerosign/tmpl/token"
+	"log"
+)
 
-// 	for {
-// 		l.Ignore(IsWhitespace)
+//
+// <template> : (<expression> | <assignment> | <comment> | <text>) <template>
+//
+// template are also terminal state.
+//
+func LexTemplate(l base.Lexer) (Flow, error) {
+	log.Println("enter LexTemplate")
+	defer log.Println("exit LexTemplate")
 
-// 		if l.Accept(IsBraceOpen) {
-// 			l.Emit(TokenBraceOpen)
-// 			return lexBraceOpen, nil
-// 		}
-// 	}
+	// terminal
+	if !l.Available() {
+		return nil, nil
+	}
 
-// 	return nil, NoMatchToken("for-statement", [][]rune{[]rune{BraceOpen}})
-// }
+	value := l.RunesAhead()
 
-// func lexBraceOpen(l *lexer.Lexer) (lexer.Flow, error) {
-
-// 	for {
-// 		l.Ignore(IsWhitespace)
-// 		value := l.RunesAhead()
-
-// 		log.Printf("<ident>: %s\n", string(value))
-// 	}
-
-// 	return nil, nil
-// }
-
-// //
-// // Lexing declaration
-// //
-// // <declaration> ::= <ident> (<token_colon> <type_decl>)? (<token_comma> <declaration>)?
-// //
-// func lexDeclaration(l *lexer.Lexer) (lexer.Flow, error) {
-
-// 	lexIdent(l)
-
-// 	if lexer.HasPrefix(l.RunesAhead(), []rune{SymbolColon}) {
-// 		l.Accept(IsSymbolColon)
-// 		// TODO: zerosign
-// 	}
-
-// 	return nil, nil
-// }
-
-// //
-// // <type_decl> ::= <uppercase_letter> (<lowercase_letter>)*
-// //
-// func lexTypeDecl(l *lexer.Lexer) (lexer.Flow, error) {
-
-// 	// <uppercase_letter>
-// 	if !l.AcceptAll(unicode.IsLetter, unicode.IsUpper) {
-// 		return nil, NotA("<uppercase_letter>")
-// 	}
-
-// 	// <lowercase_letter>*
-// 	l.TakeWhile(unicode.IsLetter, unicode.IsLower)
-// 	// l.AcceptUntil(unicode.IsLetter, unicode.IsLower)
-
-// 	// skip whitespace
-// 	l.Ignore(IsWhitespace)
-// 	return nil, nil
-// }
-
-// //
-// // <ident>         ::= <letter> (<integer> | <letter> | <symbol>)*
-// // next token whitespace ':'
-// //
-// func lexIdent(l *lexer.Lexer) (lexer.Flow, error) {
-
-// 	// only accept letter at beginning
-// 	if !l.Accept(unicode.IsLetter) {
-// 		return nil, NotA("<letter>")
-// 	}
-
-// 	// take while (<integer> | <letter> | <symbol>)*
-// 	l.TakeWhile(unicode.IsLetter, unicode.IsDigit, IsSymbol)
-// 	l.Emit(TokenIdent)
-
-// 	// skip whitespace
-// 	l.Ignore(IsWhitespace)
-
-// 	return nil, NotA("<letter>")
-// }
-
-// func lexIfStatement(l *lexer.Lexer) (lexer.Flow, error) {
-
-// 	return nil, nil
-// }
+	// test if it's expression
+	// then assignment
+	// then comment
+	// then text
+	if runes.HasPrefix(value, token.BlockExprOpen) {
+		return LexBlockExprOpen, nil
+	} else if runes.HasPrefix(value, token.BlockAssignOpen) {
+		return LexBlockAssignOpen, nil
+	} else if runes.HasPrefix(value, token.BlockCommentOpen) {
+		return LexBlockCommentOpen, nil
+	} else {
+		// anything other than above
+		return LexText, nil
+	}
+}

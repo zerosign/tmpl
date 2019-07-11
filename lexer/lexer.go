@@ -34,7 +34,7 @@ func NewLexer(input string, initial flow.Flow) (base.Lexer, error) {
 		inner:  []rune(input),
 		cursor: base.ZeroCursor(),
 		flow:   initial,
-		tokens: make(chan token.Token, 2),
+		tokens: make(chan token.Token, 5),
 	}
 
 	return &lexer, nil
@@ -47,7 +47,7 @@ func NewLexer(input string, initial flow.Flow) (base.Lexer, error) {
 // If the string are invalid utf8 string, this method will returns error.
 //
 func DefaultLexer(input string) (base.Lexer, error) {
-	return NewLexer(input, flow.LexText)
+	return NewLexer(input, flow.LexTemplate)
 }
 
 // Cursor: Get current cursor
@@ -67,25 +67,56 @@ func (l *GenLexer) CursorMut() *base.Cursor {
 // HasNext: Check whether there is next state function or not
 //
 func (l GenLexer) HasNext() bool {
+
 	return l.flow != nil
 }
 
 // Next: Get next token in the lexer queue.
 //
+// This method are already safe since it calls Lexer#HasNext internally.
+//
+// Will returns error if
+//
 func (l *GenLexer) Next() (token.Token, error) {
 	var err error
+	var ok bool
 	var t token.Token
 
-	if l.HasNext() {
+	// no next flow
+	if !l.HasNext() {
+		return token.Token{}, UnavailableFlow()
+	}
+
+	for {
+
+		// means no next flow
+		if l.flow == nil {
+			return token.Token{}, nil
+		}
+
 		l.flow, err = l.flow(l)
+
 		if err != nil {
 			return token.Token{}, err
 		}
 
-		t = <-l.tokens
-	}
+		log.Printf("next flow: %v", l.flow)
 
-	return t, nil
+		select {
+		case t, ok = <-l.tokens:
+			log.Printf("token from l.tokens: %v\n", t)
+
+			if ok {
+				return t, nil
+			} else {
+				return token.Token{}, fmt.Errorf("channel is closed")
+			}
+		default:
+			log.Printf("default")
+			continue
+		}
+
+	}
 }
 
 // Advance: Advance the cursor in lexer.
@@ -101,13 +132,27 @@ func (l GenLexer) Available() bool {
 	return l.cursor.Current()+1 < len(l.inner)
 }
 
-func (l GenLexer) Emit(t token.Type) {
+// Emit : Emit last token being scanned
+//
+//
+func (l GenLexer) LastToken(tt token.Type) token.Token {
 	cursor := l.Cursor()
 
 	// need l.current-1, since it's being prefixed with the next token
 	value := l.inner[cursor.Start() : l.cursor.Current()-1]
 
-	l.tokens <- token.Token{t, value}
+	t := token.Token{tt, value}
+	// l.tokens <- token.Token{tt, value}
+	return t
+}
+
+func (l *GenLexer) Emit(tt token.Type) {
+	t := l.LastToken(tt)
+
+	log.Printf("t: %v", t)
+
+	l.tokens <- t
+
 	// assign l.start with l.current, means
 	// the range (l.start..l.current) already being
 	// consumed by the lexer

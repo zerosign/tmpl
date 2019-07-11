@@ -6,6 +6,8 @@ import (
 	"log"
 )
 
+// LexBlockAssignOpen :
+//
 func LexBlockAssignOpen(l base.Lexer) (Flow, error) {
 	log.Println("enter block assign")
 	l.CursorMut().Incr(len(token.BlockAssignOpen))
@@ -18,6 +20,7 @@ func LexBlockAssignOpen(l base.Lexer) (Flow, error) {
 // - expression statement
 //
 func LexBlockAssign(l base.Lexer) (Flow, error) {
+
 	return nil, nil
 }
 

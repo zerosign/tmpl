@@ -22,6 +22,16 @@ func HasPrefix(source []rune, prefix []rune) bool {
 	return flag
 }
 
+func HasAllPrefixes(source []rune, prefixes [][]rune) bool {
+	flag := true
+
+	for ii := 0; ii < len(prefixes); ii += 1 {
+		flag = flag && HasPrefix(source, prefixes[ii])
+	}
+
+	return flag
+}
+
 func Join(runes [][]rune, ch rune) string {
 	var buffer []rune = make([]rune, 0)
 

@@ -12,13 +12,13 @@ func TestLexerTextOnly(t *testing.T) {
 	assert.AssertToken(t, currentToken, token.TokenText)
 }
 
-func TestLexerBlock(t *testing.T) {
-	lexer := UnsafeNewLexer("test {{ }}")
+// func TestLexerBlock(t *testing.T) {
+// 	lexer := UnsafeNewLexer("test {{ }}")
 
-	assert.AssertTokens(t, lexer, []token.Type{
-		token.TokenText, token.TokenBlockExprOpen,
-	})
-}
+// 	assert.AssertTokens(t, lexer, []token.Type{
+// 		token.TokenText, token.TokenBlockExprOpen,
+// 	})
+// }
 
 func TestLexerCommentOnly(t *testing.T) {
 	lexer := UnsafeNewLexer(`{# {{
@@ -26,6 +26,7 @@ func TestLexerCommentOnly(t *testing.T) {
 hello world
  {{ test }}
 #}`)
+
 	assert.AssertTokens(t, lexer, []token.Type{
 		token.TokenBlockCommentOpen, token.TokenBlockComment, token.TokenBlockCommentClose,
 	})

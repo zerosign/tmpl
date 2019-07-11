@@ -6,7 +6,8 @@ package token
 // error value return for each Flow.
 //
 const (
-	TokenText Type = iota
+	TokenNil Type = iota // since zero value of int is zero
+	TokenText
 	TokenBlockExprOpen
 	TokenBlockExprClose
 	TokenBlockAssignOpen

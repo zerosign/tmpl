@@ -13,6 +13,7 @@ func (tt Type) String() string {
 
 var (
 	tokens = map[Type]string{
+		TokenNil:               "<nil>",
 		TokenText:              "<text>",
 		TokenBlockExprOpen:     "<block_expr_open>",
 		TokenBlockExprClose:    "<block_expr_close>",
