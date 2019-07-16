@@ -17,6 +17,18 @@ const (
 	TokenBlockCommentClose
 	TokenIf
 	TokenFor
+	TokenIn
 	TokenBraceOpen
+	TokenBraceClose
 	TokenIdent
+	TokenLetter
+	TokenColon
+	TokenComma
+	TokenDeclType
+	TokenDo
+	TokenFuncName
+	TokenParaOpen
+	TokenParaClose
+	TokenInteger
+	TokenQuote
 )

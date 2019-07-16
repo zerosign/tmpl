@@ -6,7 +6,7 @@ import (
 	"github.com/zerosign/tmpl/token"
 )
 
-func LexIfStatement(l base.Lexer) (Flow, error) {
+func LexStmtIf(l base.Lexer) (Flow, error) {
 
 	for {
 		l.Ignore(token.IsWhitespace)
@@ -18,5 +18,13 @@ func LexIfStatement(l base.Lexer) (Flow, error) {
 		}
 	}
 
+	return nil, nil
+}
+
+func LexStmtElsif(l base.Lexer) (Flow, error) {
+	return nil, nil
+}
+
+func LexStmtElse(l base.Lexer) (Flow, error) {
 	return nil, nil
 }

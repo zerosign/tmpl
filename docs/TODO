@@ -15,3 +15,22 @@ databases:
 {{ for { key: String, value: Value } in rlookup("vault", "") do }}
    {= database_template(key, value) =}
 {{ end }}
+
+
+{{ if rlookup("vault", "test/test/test") == "test" do }}
+
+{{ end }}
+
+
+{{ if rlookup("env", "test/test/test") == "production" do }}
+
+{{ end }}
+
+{{ let data := rlookup("vault", "test/test/test") }}
+
+
+{= lookup(data, "test.test[]") =}
+
+{= encode("yaml", lookup(data, "test.test[]")) =}
+{= encrypt("ed25519", "vault", encode("yaml", lookup(data, "test.test[]"))) =}
+{= encrypt("ed25519", ) =}

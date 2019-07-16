@@ -64,5 +64,4 @@ func LexCommentBlockClose(l base.Lexer) (Flow, error) {
 	} else {
 		return nil, nil
 	}
-
 }

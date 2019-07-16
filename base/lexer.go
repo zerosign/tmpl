@@ -5,14 +5,20 @@ import (
 	"io"
 )
 
+// Combinators : interface that deals with lexer combinators
+//
+//
 type Combinators interface {
 	TakeWhile(conds ...token.RuneCond)
 	AcceptAll(conds ...token.RuneCond) bool
-	AcceptUntil(conds ...token.RuneCond) bool
+	// AcceptUntil(conds ...token.RuneCond) bool
 	Accept(cond token.RuneCond) bool
 	Ignore(cond token.RuneCond)
 }
 
+// LookAheadPtr : interface that deals with look ahead pointer (cursor + runes)
+//
+//
 type LookAheadPtr interface {
 	HasNext() bool
 	Next() (token.Token, error)
@@ -20,17 +26,28 @@ type LookAheadPtr interface {
 	Available() bool
 	RunesAhead() []rune
 	CurrentRune() rune
+	LastRune() rune
+	StartRune() rune
 }
 
+// Emitter : interface that deals with emitting token
+//
+//
 type Emitter interface {
 	Emit(t token.Type)
 }
 
+// HasCursor : interface that represents a mutator and getter for cursor.
+//
+//
 type HasCursor interface {
 	Cursor() Cursor
 	CursorMut() *Cursor
 }
 
+// Lexer : final interface that represents a Lexer.
+//
+//
 type Lexer interface {
 	HasCursor
 	Emitter

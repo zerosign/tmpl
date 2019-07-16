@@ -20,7 +20,6 @@ func LexBlockExprOpen(l base.Lexer) (Flow, error) {
 // block region contains :
 // - for-statement
 // - if-statement
-// - template-decl-statement
 //
 func LexBlockExpr(l base.Lexer) (Flow, error) {
 	log.Println("enter logBlock")
@@ -39,7 +38,7 @@ func LexBlockExpr(l base.Lexer) (Flow, error) {
 		} else if runes.HasPrefix(value, token.KeywordIf) {
 			// found keyword if
 			l.Emit(token.TokenIf)
-			return LexIfStatement, nil
+			return LexStmtIf, nil
 		}
 	}
 

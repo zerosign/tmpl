@@ -30,14 +30,12 @@ func NewLexer(input string, initial flow.Flow) (base.Lexer, error) {
 		return nil, InvalidUtfInput()
 	}
 
-	lexer := GenLexer{
+	return &GenLexer{
 		inner:  []rune(input),
 		cursor: base.ZeroCursor(),
 		flow:   initial,
 		tokens: make(chan token.Token, 5),
-	}
-
-	return &lexer, nil
+	}, nil
 }
 
 // DefaultLexer: create new lexer based on string by assuming
@@ -167,6 +165,19 @@ func (l GenLexer) CurrentRune() rune {
 	return l.inner[l.cursor.Current()]
 }
 
+func (l GenLexer) LastRune() (rune, error) {
+	if l.cursor.Current() > 0 {
+		return l.inner[l.cursor.Current()-1], nil
+	} else {
+		return ' ', InvalidCursor()
+	}
+
+}
+
+func (l GenLexer) StartRune() rune {
+	return l.inner[l.cursor.Start()]
+}
+
 //
 // Note: This advance current cursor
 //
@@ -203,7 +214,7 @@ func (l GenLexer) AcceptAll(conds ...token.RuneCond) bool {
 //
 // Note: This advance current cursor
 //
-func (l GenLexer) AcceptUntil(conds ...token.RuneCond) bool {
+func (l GenLexer) AcceptWhile(conds ...token.RuneCond) bool {
 	flag := true
 
 	for {
@@ -238,7 +249,11 @@ func (l GenLexer) Ignore(cond token.RuneCond) {
 	for {
 		ch := l.CurrentRune()
 		if cond(ch) && l.Available() {
-			l.Advance()
+			cursor := l.CursorMut()
+			// ignore means incrementing both start & current cursor
+			cursor.Next()
+			cursor.Advance()
+
 		} else {
 			break
 		}

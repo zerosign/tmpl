@@ -13,3 +13,7 @@ func InvalidUtfInput() error {
 func UnavailableFlow() error {
 	return fmt.Errorf("flow is nil, hasNext returns false")
 }
+
+func InvalidCursor() error {
+	return fmt.Errorf("no backward cursor available")
+}

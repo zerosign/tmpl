@@ -24,8 +24,12 @@ var (
 		TokenBlockCommentClose: "<block_comment_close>",
 		TokenIf:                "<keyword_if>",
 		TokenFor:               "<keyword_for>",
+		TokenIn:                "<keyword_in>",
+		TokenDo:                "<do>",
 		TokenBraceOpen:         "<block_brace_open>",
 		TokenIdent:             "<ident>",
+		TokenLetter:            "<letter>",
+		TokenDeclType:          "<decl_type>",
 	}
 )
 

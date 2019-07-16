@@ -1,5 +1,9 @@
 package token
 
+import (
+	"unicode"
+)
+
 const (
 
 	// brace
@@ -13,6 +17,12 @@ const (
 	// bracket
 	BracketOpen  rune = '['
 	BracketClose rune = ']'
+
+	Quote rune = '"'
+
+	Colon rune = ':'
+
+	Comma rune = ','
 )
 
 var (
@@ -39,6 +49,8 @@ var (
 
 	// reserved keywords
 	KeywordFor   = []rune("for")
+	KeywordDo    = []rune("do")
+	KeywordEnd   = []rune("end")
 	KeywordIf    = []rune("if")
 	KeywordElse  = []rune("else")
 	KeywordElsif = []rune("elsif")
@@ -54,4 +66,9 @@ var (
 	IsBracketOpen  = IsRuneEq(BracketOpen)
 	IsBracketClose = IsRuneEq(BracketClose)
 	IsSymbolColon  = IsRuneEq(SymbolColon)
+	IsQuote        = IsRuneEq(Quote)
+
+	IsPrimitive = func(ch rune) bool {
+		return IsQuote(ch) && unicode.IsDigit(ch)
+	}
 )
