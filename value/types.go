@@ -3,14 +3,19 @@ package value
 type Kind int
 
 const (
-	Null Kind = iota
+	Unit Kind = iota
 	Bool
 	Int
 	Double
 	Str
 	Array
 	Map
+	Struct
 )
+
+type IsUnit interface {
+	IsUnit() bool
+}
 
 type Primitive interface {
 	IsPrimitive() bool
@@ -53,6 +58,7 @@ type AsArray interface {
 }
 
 type Value interface {
+	IsUnit
 	Primitive
 	AsBool
 	AsInt
