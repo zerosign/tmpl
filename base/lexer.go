@@ -26,7 +26,7 @@ type LookAheadPtr interface {
 	Available() bool
 	RunesAhead() []rune
 	CurrentRune() rune
-	LastRune() rune
+	LastRune() (rune, error)
 	StartRune() rune
 }
 
@@ -54,4 +54,5 @@ type Lexer interface {
 	LookAheadPtr
 	Combinators
 	io.Closer
+	IsClosed() bool
 }

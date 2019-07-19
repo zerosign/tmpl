@@ -6,6 +6,7 @@ import (
 	"github.com/zerosign/tmpl/lexer/flow"
 	"github.com/zerosign/tmpl/token"
 	"log"
+	"sync/atomic"
 	"unicode/utf8"
 )
 
@@ -17,6 +18,7 @@ type GenLexer struct {
 	cursor base.Cursor
 	flow   flow.Flow
 	tokens chan token.Token
+	flag   atomic.Value
 }
 
 // NewLexer: create new lexer based on string by specifying initial state.
@@ -30,11 +32,15 @@ func NewLexer(input string, initial flow.Flow) (base.Lexer, error) {
 		return nil, InvalidUtfInput()
 	}
 
+	var flag atomic.Value
+	flag.Store(true)
+
 	return &GenLexer{
 		inner:  []rune(input),
 		cursor: base.ZeroCursor(),
 		flow:   initial,
 		tokens: make(chan token.Token, 5),
+		flag:   flag,
 	}, nil
 }
 
@@ -260,12 +266,29 @@ func (l GenLexer) Ignore(cond token.RuneCond) {
 	}
 }
 
+// String : prints internal lexer states
+//
+//
 func (l GenLexer) String() string {
-	return fmt.Sprintf("<lexer{cursor=%s,state=%s}>", l.Cursor(), l.flow)
+	return fmt.Sprintf("<lexer{cursor=%s,flow=%s}>", l.Cursor(), l.flow)
 }
 
+// Close : safely close lexer
+//
+// this method close the channel of tokens
+// it means any tokens that still in the channel will be gone
+// and the channel will be invalidated.
+//
 func (l GenLexer) Close() error {
 	close(l.tokens)
+	defer l.flag.Store(false)
 	log.Println("lexer is closed")
 	return nil
+}
+
+// IsClosed : Check whether lexer is closed or not
+//
+//
+func (l GenLexer) IsClosed() bool {
+	return l.flag.Load().(bool)
 }
