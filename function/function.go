@@ -2,6 +2,7 @@ package function
 
 import (
 	"fmt"
+	"github.com/zerosign/tmpl/ast"
 	"github.com/zerosign/tmpl/value"
 	"reflect"
 )
@@ -14,6 +15,10 @@ type FunctionDecl struct {
 }
 
 func (f FunctionDecl) Call(context Context, params []value.Value) (value.Value, error) {
+	return nil, nil
+}
+
+func (f FunctionDecl) Mutate(context Context, node ast.Node, params []value.Value) (value.Value, error) {
 	return nil, nil
 }
 
