@@ -1,9 +1,9 @@
 package flow
 
 import (
+	"github.com/rs/zerolog/log"
 	"github.com/zerosign/tmpl/base"
 	"github.com/zerosign/tmpl/token"
-	"log"
 	"unicode"
 )
 
@@ -16,8 +16,8 @@ import (
 // call(data, 1, "")
 //
 func LexFunctionCall(l base.Lexer) (Flow, error) {
-	log.Println("enter FunctionCall")
-	defer log.Println("exit FunctionCall")
+	log.Debug().Msg("enter FunctionCall")
+	defer log.Debug().Msg("exit FunctionCall")
 
 	var err error
 
@@ -59,13 +59,14 @@ func LexFunctionCall(l base.Lexer) (Flow, error) {
 // Value | (1 + (1 + 1) + 1)
 //
 func LexFunctionArgs(l base.Lexer) (Flow, error) {
-	log.Println("enter FunctionArgs")
-	defer log.Println("exit FunctionArgs")
+	log.Debug().Msg("enter FunctionArgs")
+	defer log.Debug().Msg("exit FunctionArgs")
 
 	for {
 		l.Ignore(token.IsWhitespace)
+		// TODO(@zerosign): expression lexer need to be done first
 
-		//
+		// ignore expression lexer first
 
 	}
 

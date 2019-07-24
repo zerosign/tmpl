@@ -17,3 +17,7 @@ func UnavailableFlow() error {
 func InvalidCursor() error {
 	return fmt.Errorf("no backward cursor available")
 }
+
+func LexerChannelClosed() error {
+	return fmt.Errorf("channel is closed")
+}

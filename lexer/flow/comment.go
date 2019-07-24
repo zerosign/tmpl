@@ -1,18 +1,18 @@
 package flow
 
 import (
+	"github.com/rs/zerolog/log"
 	"github.com/zerosign/tmpl/base"
 	"github.com/zerosign/tmpl/runes"
 	"github.com/zerosign/tmpl/token"
-	"log"
 )
 
 // LexBlockCommentOpen: lexing start of the comment block
 //
 //
 func LexBlockCommentOpen(l base.Lexer) (Flow, error) {
-	log.Println("enter BlockCommentOpen")
-	defer log.Println("exit BlockCommentOpen")
+	log.Debug().Msg("enter BlockCommentOpen")
+	defer log.Debug().Msg("exit BlockCommentOpen")
 
 	l.CursorMut().Incr(len(token.BlockCommentOpen))
 	l.Emit(token.TokenBlockCommentOpen)
@@ -25,8 +25,8 @@ func LexBlockCommentOpen(l base.Lexer) (Flow, error) {
 // - consume everything until found BlockCommentClose
 //
 func LexBlockComment(l base.Lexer) (Flow, error) {
-	log.Println("enter BlockComment")
-	defer log.Println("exit BlockComment")
+	log.Debug().Msg("enter BlockComment")
+	defer log.Debug().Msg("exit BlockComment")
 
 	for {
 		value := l.RunesAhead()
@@ -51,8 +51,8 @@ func LexBlockComment(l base.Lexer) (Flow, error) {
 //
 //
 func LexCommentBlockClose(l base.Lexer) (Flow, error) {
-	log.Println("enter CommentBlockClose")
-	defer log.Println("exit CommentBlockClose")
+	log.Debug().Msg("enter CommentBlockClose")
+	defer log.Debug().Msg("exit CommentBlockClose")
 
 	l.CursorMut().Incr(len(token.BlockCommentClose))
 	l.Emit(token.TokenBlockCommentClose)

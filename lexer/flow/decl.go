@@ -2,10 +2,10 @@ package flow
 
 import (
 	"github.com/zerosign/tmpl/base"
-	// "github.com/zerosign/tmpl/runes"
-	"github.com/zerosign/tmpl/token"
-	"log"
 	"unicode"
+	// "github.com/zerosign/tmpl/runes"
+	"github.com/rs/zerolog/log"
+	"github.com/zerosign/tmpl/token"
 )
 
 //
@@ -15,8 +15,8 @@ import (
 // be called & managed in call site.
 //
 func LexBlockDecl(l base.Lexer) (Flow, error) {
-	log.Println("enter Declaration")
-	defer log.Println("exit Declaration")
+	log.Debug().Msg("enter Declaration")
+	defer log.Debug().Msg("exit Declaration")
 
 	value := l.CurrentRune()
 
@@ -31,8 +31,8 @@ func LexBlockDecl(l base.Lexer) (Flow, error) {
 // emit: `{`, next: LexDeclaration
 //
 func LexBraceOpen(l base.Lexer) (Flow, error) {
-	log.Println("enter BraceOpen")
-	defer log.Println("exit BraceOpen")
+	log.Debug().Msg("enter BraceOpen")
+	defer log.Debug().Msg("exit BraceOpen")
 
 	l.CursorMut().Next()
 	l.Emit(token.TokenBraceOpen)
@@ -55,8 +55,8 @@ func LexBraceOpen(l base.Lexer) (Flow, error) {
 // the next state are depends on the callsite
 //
 func LexDeclaration(l base.Lexer) (Flow, error) {
-	log.Println("enter Declaration")
-	defer log.Println("exit Declaration")
+	log.Debug().Msg("enter Declaration")
+	defer log.Debug().Msg("exit Declaration")
 
 	var err error
 
@@ -116,8 +116,8 @@ func LexDeclaration(l base.Lexer) (Flow, error) {
 // returns nil, next state are being controlled in callsite
 //
 func LexDeclType(l base.Lexer) (Flow, error) {
-	log.Println("enter TypeDecl")
-	defer log.Println("exit TypeDecl")
+	log.Debug().Msg("enter TypeDecl")
+	defer log.Debug().Msg("exit TypeDecl")
 
 	l.Ignore(token.IsWhitespace)
 
@@ -139,8 +139,8 @@ func LexDeclType(l base.Lexer) (Flow, error) {
 // emit: '}', next: callee site defined
 //
 func LexBraceClose(l base.Lexer) (Flow, error) {
-	log.Println("enter BraceClose")
-	defer log.Println("exit BraceClose")
+	log.Debug().Msg("enter BraceClose")
+	defer log.Debug().Msg("exit BraceClose")
 
 	l.CursorMut().Next()
 	l.Emit(token.TokenBraceClose)

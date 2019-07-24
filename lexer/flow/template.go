@@ -1,10 +1,10 @@
 package flow
 
 import (
+	"github.com/rs/zerolog/log"
 	"github.com/zerosign/tmpl/base"
 	"github.com/zerosign/tmpl/runes"
 	"github.com/zerosign/tmpl/token"
-	"log"
 )
 
 //
@@ -13,8 +13,8 @@ import (
 // template are also terminal state.
 //
 func LexTemplate(l base.Lexer) (Flow, error) {
-	log.Println("enter LexTemplate")
-	defer log.Println("exit LexTemplate")
+	log.Debug().Msg("enter LexTemplate")
+	defer log.Debug().Msg("exit LexTemplate")
 
 	// terminal
 	if !l.Available() {

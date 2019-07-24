@@ -1,10 +1,10 @@
 package flow
 
 import (
+	"github.com/rs/zerolog/log"
 	"github.com/zerosign/tmpl/base"
 	"github.com/zerosign/tmpl/runes"
 	"github.com/zerosign/tmpl/token"
-	"log"
 )
 
 //
@@ -12,8 +12,8 @@ import (
 //
 //
 func LexStmtFor(l base.Lexer) (Flow, error) {
-	log.Println("enter ForStatement")
-	defer log.Println("exit ForStatement")
+	log.Debug().Msg("enter ForStatement")
+	defer log.Debug().Msg("exit ForStatement")
 
 	var err error
 
@@ -57,8 +57,8 @@ func LexStmtFor(l base.Lexer) (Flow, error) {
 }
 
 func LexStmtForIn(l base.Lexer) (Flow, error) {
-	log.Println("enter StmtForIn")
-	defer log.Println("exit StmtForIn")
+	log.Debug().Msg("enter StmtForIn")
+	defer log.Debug().Msg("exit StmtForIn")
 
 	l.CursorMut().Next()
 	l.Emit(token.TokenIf)

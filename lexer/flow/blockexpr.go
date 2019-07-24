@@ -1,15 +1,15 @@
 package flow
 
 import (
+	"github.com/rs/zerolog/log"
 	"github.com/zerosign/tmpl/base"
 	"github.com/zerosign/tmpl/runes"
 	"github.com/zerosign/tmpl/token"
-
-	"log"
 )
 
 func LexBlockExprOpen(l base.Lexer) (Flow, error) {
-	log.Println("enter logBlockExprOpen")
+	log.Debug().Msg("enter LexBlockExprOpen")
+	defer log.Debug().Msg("exit LexBlockExprOpen")
 
 	l.CursorMut().Incr(len(token.BlockExprOpen))
 	l.Emit(token.TokenBlockExprOpen)
@@ -22,7 +22,9 @@ func LexBlockExprOpen(l base.Lexer) (Flow, error) {
 // - if-statement
 //
 func LexBlockExpr(l base.Lexer) (Flow, error) {
-	log.Println("enter logBlock")
+	log.Debug().Msg("enter LexBlockExpr")
+	defer log.Debug().Msg("exit LexBlockExpr")
+
 	for {
 		// skip whitespace
 		l.Ignore(token.IsWhitespace)

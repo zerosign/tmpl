@@ -13,7 +13,7 @@ const (
 	lowerCase
 )
 
-func (t textCase) String() {
+func (t textCase) String() string {
 	if t == upperCase {
 		return "<uppercase>"
 	} else {
@@ -35,8 +35,6 @@ func ZeroPaddedInteger() error {
 	return fmt.Errorf("integer `%s` value shouldn't be padded with 0")
 }
 
-func
-
 // NotA: return an error that give whether current token is not
 //
 func NotA(tt token.Type) error {
@@ -45,4 +43,8 @@ func NotA(tt token.Type) error {
 
 func CaseError(expected, result textCase) error {
 	return fmt.Errorf("expected case: %s got %s", expected, result)
+}
+
+func UnsupportedValueType() error {
+	return fmt.Errorf("unsupported value type")
 }

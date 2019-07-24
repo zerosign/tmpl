@@ -1,10 +1,10 @@
 package flow
 
 import (
+	"github.com/rs/zerolog/log"
 	"github.com/zerosign/tmpl/base"
 	"github.com/zerosign/tmpl/runes"
 	"github.com/zerosign/tmpl/token"
-	"log"
 )
 
 var (
@@ -16,9 +16,8 @@ var (
 //
 func LexText(l base.Lexer) (Flow, error) {
 	var value []rune
-
-	log.Println("enter LexText")
-	defer log.Println("exit LexText")
+	log.Debug().Msg("enter LexText")
+	defer log.Debug().Msg("exit LexText")
 
 	for {
 		value = l.RunesAhead()

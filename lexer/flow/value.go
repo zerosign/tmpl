@@ -9,16 +9,17 @@ func LexValue(l base.Lexer) (Flow, error) {
 	ch := l.CurrentRune()
 
 	// check for primitive type
+	// this include quoted string or digit
 	if token.IsPrimitive(ch) {
 		return LexPrimitive, nil
 	} else if token.IsBraceOpen(ch) {
 		// map type
 		return LexMap, nil
-	} else if token.IsParaOpen(ch) {
+	} else if token.IsBracketOpen(ch) {
 		// array type
 		return LexArray, nil
 	} else {
-		// TODO : add new error
-		return nil, nil
+		// if value is not primitive | map | array
+		return nil, UnsupportedValueType()
 	}
 }

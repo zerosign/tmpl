@@ -31,4 +31,6 @@ const (
 	TokenParaClose
 	TokenInteger
 	TokenQuote
+	TokenBracketOpen
+	TokenBracketClose
 )

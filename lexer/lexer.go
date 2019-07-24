@@ -2,10 +2,10 @@ package lexer
 
 import (
 	"fmt"
+	"github.com/rs/zerolog/log"
 	"github.com/zerosign/tmpl/base"
 	"github.com/zerosign/tmpl/lexer/flow"
 	"github.com/zerosign/tmpl/token"
-	"log"
 	"sync/atomic"
 	"unicode/utf8"
 )
@@ -28,6 +28,7 @@ type GenLexer struct {
 //
 func NewLexer(input string, initial flow.Flow) (base.Lexer, error) {
 
+	// check for valid utf-8 string
 	if !utf8.ValidString(input) {
 		return nil, InvalidUtfInput()
 	}
@@ -71,7 +72,6 @@ func (l *GenLexer) CursorMut() *base.Cursor {
 // HasNext: Check whether there is next state function or not
 //
 func (l GenLexer) HasNext() bool {
-
 	return l.flow != nil
 }
 
@@ -92,10 +92,11 @@ func (l *GenLexer) Next() (token.Token, error) {
 	}
 
 	for {
-
 		// means no next flow
 		if l.flow == nil {
 			return token.Token{}, nil
+		} else {
+			log.Debug().Str("current-flow", l.flow.String())
 		}
 
 		l.flow, err = l.flow(l)
@@ -104,19 +105,19 @@ func (l *GenLexer) Next() (token.Token, error) {
 			return token.Token{}, err
 		}
 
-		log.Printf("next flow: %v", l.flow)
+		log.Debug().Str("next-flow", l.flow.String())
 
 		select {
 		case t, ok = <-l.tokens:
-			log.Printf("token from l.tokens: %v\n", t)
+			log.Debug().Str("received-token", t.String()).Msg("token received from channel")
 
 			if ok {
 				return t, nil
 			} else {
-				return token.Token{}, fmt.Errorf("channel is closed")
+				return token.Token{}, LexerChannelClosed()
 			}
 		default:
-			log.Printf("default")
+			log.Debug().Str("received-token", "").Msg("no token received from channel")
 			continue
 		}
 
@@ -153,7 +154,7 @@ func (l GenLexer) LastToken(tt token.Type) token.Token {
 func (l *GenLexer) Emit(tt token.Type) {
 	t := l.LastToken(tt)
 
-	log.Printf("t: %v", t)
+	log.Debug().Str("emit-token", t.String())
 
 	l.tokens <- t
 
@@ -282,12 +283,11 @@ func (l GenLexer) String() string {
 func (l GenLexer) Close() error {
 	close(l.tokens)
 	defer l.flag.Store(false)
-	log.Println("lexer is closed")
+	log.Debug().Bool("lexer-closed", l.flag.Load().(bool))
 	return nil
 }
 
 // IsClosed : Check whether lexer is closed or not
-//
 //
 func (l GenLexer) IsClosed() bool {
 	return l.flag.Load().(bool)
