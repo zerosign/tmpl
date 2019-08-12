@@ -3,6 +3,7 @@ module github.com/zerosign/tmpl
 go 1.12
 
 require (
+	github.com/cnf/structhash v0.0.0-20180104161610-62a607eb0224
 	github.com/coreos/go-systemd v0.0.0-20190719114852-fd7a80b32e1f // indirect
 	github.com/rs/zerolog v1.14.3
 	golang.org/x/crypto v0.0.0-20190701094942-4def268fd1a4 // indirect

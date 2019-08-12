@@ -1,11 +1,11 @@
 package flow
 
 import (
-	"github.com/zerosign/tmpl/base"
-	"unicode"
-	// "github.com/zerosign/tmpl/runes"
 	"github.com/rs/zerolog/log"
+	"github.com/zerosign/tmpl/base"
+	"github.com/zerosign/tmpl/runes"
 	"github.com/zerosign/tmpl/token"
+	"unicode"
 )
 
 //
@@ -20,10 +20,10 @@ func LexBlockDecl(l base.Lexer) (Flow, error) {
 
 	value := l.CurrentRune()
 
-	if value == token.BraceOpen {
+	if value == runes.OpenBrace {
 		return LexBraceOpen, nil
 	} else {
-		return nil, NotA(token.TokenBraceOpen)
+		return nil, NotA(token.OpenBrace)
 	}
 }
 
@@ -35,7 +35,7 @@ func LexBraceOpen(l base.Lexer) (Flow, error) {
 	defer log.Debug().Msg("exit BraceOpen")
 
 	l.CursorMut().Next()
-	l.Emit(token.TokenBraceOpen)
+	l.Emit(token.OpenBrace)
 
 	return LexDeclaration, nil
 }
@@ -77,9 +77,9 @@ func LexDeclaration(l base.Lexer) (Flow, error) {
 		l.Ignore(token.IsWhitespace)
 
 		// check whether ident declare a type or not
-		if l.CurrentRune() == token.Colon {
+		if l.CurrentRune() == runes.Colon {
 
-			l.Emit(token.TokenColon)
+			l.Emit(token.Colon)
 
 			// fetch type of ident
 			_, err = LexDeclType(l)
@@ -92,12 +92,12 @@ func LexDeclaration(l base.Lexer) (Flow, error) {
 		// ignore whitespace
 		l.Ignore(token.IsWhitespace)
 
-		if l.CurrentRune() == token.Comma {
+		if l.CurrentRune() == runes.Comma {
 			// emit token Comma
-			l.Emit(token.TokenComma)
+			l.Emit(token.Comma)
 
 			// since it has comma, then there should have next declaration
-			l.Next()
+			l.Advance()
 
 		} else {
 			// this break only when there were no 'token.Comma' found
@@ -131,7 +131,7 @@ func LexDeclType(l base.Lexer) (Flow, error) {
 	l.TakeWhile(unicode.IsLetter, token.IsSymbol)
 
 	// emit current decl type
-	l.Emit(token.TokenDeclType)
+	l.Emit(token.DeclType)
 
 	return nil, nil
 }
@@ -143,7 +143,7 @@ func LexBraceClose(l base.Lexer) (Flow, error) {
 	defer log.Debug().Msg("exit BraceClose")
 
 	l.CursorMut().Next()
-	l.Emit(token.TokenBraceClose)
+	l.Emit(token.CloseBrace)
 
 	return nil, nil
 }

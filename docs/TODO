@@ -6,18 +6,21 @@ Content { }
 {# all function being declared in template are always returns String #}
 {{ func database_template(key: String, value: Value) do }}
 {= key =}:
-   hosts: {= expand("yaml", value.hosts, pretty=true) =}
+   hosts: {= decode("yaml", value.hosts, pretty=true) =}
    username: {= value.username =}
    password: {= decrypt("", "", value.password) =}
 {{ end }}
 
 databases:
+{#
+  it's being inferred in here that rlookup function returns dictionary/map
+#}
 {{ for { key: String, value: Value } in rlookup("vault", "") do }}
    {= database_template(key, value) =}
 {{ end }}
 
 
-{{ if rlookup("vault", "test/test/test") == "test" do }}
+{{ if rlookup("vault", "athena/env") == "test" do }}
 
 {{ end }}
 
@@ -26,7 +29,7 @@ databases:
 
 {{ end }}
 
-{{ let data := rlookup("vault", "test/test/test") }}
+{{ let data := rlookup("local-env", "test/test/test") }}
 
 
 {= lookup(data, "test.test[]") =}

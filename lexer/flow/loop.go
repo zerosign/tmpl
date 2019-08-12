@@ -3,7 +3,8 @@ package flow
 import (
 	"github.com/rs/zerolog/log"
 	"github.com/zerosign/tmpl/base"
-	"github.com/zerosign/tmpl/runes"
+	"github.com/zerosign/tmpl/runes/keyword"
+	rutil "github.com/zerosign/tmpl/runes/util"
 	"github.com/zerosign/tmpl/token"
 )
 
@@ -17,8 +18,8 @@ func LexStmtFor(l base.Lexer) (Flow, error) {
 
 	var err error
 
-	l.CursorMut().Incr(len(token.KeywordFor))
-	l.Emit(token.TokenFor)
+	l.CursorMut().Incr(len(keyword.For))
+	l.Emit(token.For)
 
 	_, err = LexBlockDecl(l)
 
@@ -44,13 +45,13 @@ func LexStmtFor(l base.Lexer) (Flow, error) {
 
 	l.Ignore(token.IsWhitespace)
 
-	if runes.HasPrefix(l.RunesAhead(), token.KeywordDo) {
+	if rutil.HasPrefix(l.RunesAhead(), keyword.Do) {
 
-		l.CursorMut().Incr(len(token.KeywordDo))
-		l.Emit(token.TokenDo)
+		l.CursorMut().Incr(len(keyword.Do))
+		l.Emit(token.Do)
 
 	} else {
-		return nil, NotA(token.TokenDo)
+		return nil, NotA(token.Do)
 	}
 
 	return nil, nil
@@ -61,7 +62,7 @@ func LexStmtForIn(l base.Lexer) (Flow, error) {
 	defer log.Debug().Msg("exit StmtForIn")
 
 	l.CursorMut().Next()
-	l.Emit(token.TokenIf)
+	l.Emit(token.If)
 
 	return nil, nil
 }

@@ -4,6 +4,10 @@ import (
 	"fmt"
 )
 
+const (
+	DefaultStep = 1
+)
+
 // Cursor: describe current position in text.
 //
 type Cursor struct {
@@ -34,7 +38,7 @@ func (c Cursor) Current() int {
 //
 //
 func (c *Cursor) Next() {
-	c.current += 1
+	c.Incr(DefaultStep)
 }
 
 // Incr: increment cursor by c.
@@ -56,8 +60,10 @@ func (c *Cursor) Advance() {
 	c.start = c.current
 }
 
+// IsValid: check whether cursor variant (start <= current) are still true
+//
 func (c Cursor) IsValid() bool {
-	return c.current > c.start
+	return c.start <= c.current
 }
 
 // String: String representation for Cursor.

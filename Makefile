@@ -1,11 +1,11 @@
-SRC_DIRS = assert base runes value lexer ast parser
+SRC_DIRS = assert base runes value lexer ast
 
-all: build test doc
+all: compile test doc
 
 clean:
 	go clean
 
-build:
+compile: lint
 	$(foreach dir, $(SRC_DIRS),go build github.com/zerosign/tmpl/$(dir);)
 
 test:
@@ -13,3 +13,6 @@ test:
 
 lint:
 	$(foreach dir, $(SRC_DIRS),go vet github.com/zerosign/tmpl/$(dir);)
+
+doc:
+	go doc .

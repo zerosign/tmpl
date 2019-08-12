@@ -1,4 +1,4 @@
-package lexer
+package impl
 
 import (
 	"fmt"
@@ -12,7 +12,6 @@ import (
 
 // GenLexer : types that implement lexer.Lexer for this language
 //
-//
 type GenLexer struct {
 	inner  []rune
 	cursor base.Cursor
@@ -23,10 +22,12 @@ type GenLexer struct {
 
 // NewLexer: create new lexer based on string by specifying initial state.
 //
-// This method checks whether input string are valid utf8 string or not.
+// This method also checks whether input string are valid utf8 string or not.
 // If the string are invalid utf8 string, this method will returns error.
 //
 func NewLexer(input string, initial flow.Flow) (base.Lexer, error) {
+
+	log.Debug().Str("input", input).Str("initial-flow", initial.String()).Msg("create new unsafe lexer")
 
 	// check for valid utf-8 string
 	if !utf8.ValidString(input) {
@@ -170,6 +171,18 @@ func (l GenLexer) RunesAhead() []rune {
 
 func (l GenLexer) CurrentRune() rune {
 	return l.inner[l.cursor.Current()]
+}
+
+func (l GenLexer) PeekRune() rune {
+	if l.cursor.Current()+1 > 0 {
+		return l.inner[l.cursor.Current()+1]
+	} else {
+		// HACK: hopefully this didn't make everything UB
+		// comes from zero value of rune (unitialized value)
+		// var ch rune
+		// int(ch) == 0
+		return rune(0)
+	}
 }
 
 func (l GenLexer) LastRune() (rune, error) {

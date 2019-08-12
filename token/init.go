@@ -8,35 +8,36 @@ type Type int
 //
 //
 func (tt Type) String() string {
-	return TokenOf(tt)
+	return Of(tt)
 }
 
 var (
 	tokens = map[Type]string{
-		TokenNil:               "<nil>",
-		TokenText:              "<text>",
-		TokenBlockExprOpen:     "<block_expr_open>",
-		TokenBlockExprClose:    "<block_expr_close>",
-		TokenBlockAssignOpen:   "<block_assign_open>",
-		TokenBlockAssignClose:  "<block_assign_close>",
-		TokenBlockComment:      "<block_comment>",
-		TokenBlockCommentOpen:  "<block_comment_open>",
-		TokenBlockCommentClose: "<block_comment_close>",
-		TokenIf:                "<keyword_if>",
-		TokenFor:               "<keyword_for>",
-		TokenIn:                "<keyword_in>",
-		TokenDo:                "<do>",
-		TokenBraceOpen:         "<block_brace_open>",
-		TokenIdent:             "<ident>",
-		TokenLetter:            "<letter>",
-		TokenDeclType:          "<decl_type>",
+		Nil:          "<nil>",
+		Text:         "<text>",
+		OpenExpr:     "<block_expr_open>",
+		CloseExpr:    "<block_expr_close>",
+		OpenAssign:   "<block_assign_open>",
+		CloseAssign:  "<block_assign_close>",
+		Comment:      "<block_comment>",
+		OpenComment:  "<block_comment_open>",
+		CloseComment: "<block_comment_close>",
+		If:           "<keyword_if>",
+		For:          "<keyword_for>",
+		In:           "<keyword_in>",
+		Do:           "<do>",
+		OpenBrace:    "<block_brace_open>",
+		CloseBrace:   "<block_brace_close>",
+		Ident:        "<ident>",
+		Letter:       "<letter>",
+		DeclType:     "<decl_type>",
 	}
 )
 
-// TokenOf : get string representation of token.
+// Of : get string representation of token.
 //
 //
-func TokenOf(ty Type) string {
+func Of(ty Type) string {
 	val := tokens[ty]
 	return val
 }

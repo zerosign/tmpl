@@ -3,6 +3,7 @@ package flow
 import (
 	"github.com/rs/zerolog/log"
 	"github.com/zerosign/tmpl/base"
+	"github.com/zerosign/tmpl/runes"
 	"github.com/zerosign/tmpl/token"
 	"unicode"
 )
@@ -23,13 +24,13 @@ func LexFunctionCall(l base.Lexer) (Flow, error) {
 
 	// take while there is letter & lower
 	l.TakeWhile(unicode.IsLetter, unicode.IsLower, token.IsSymbol)
-	l.Emit(token.TokenFuncName)
+	l.Emit(token.FuncName)
 
 	// ignore whitespace
 	l.Ignore(token.IsWhitespace)
 
-	if l.CurrentRune() == token.ParaOpen {
-		l.Emit(token.TokenParaOpen)
+	if l.CurrentRune() == runes.OpenPara {
+		l.Emit(token.OpenPara)
 	}
 
 	// ignore whitespace
@@ -44,8 +45,8 @@ func LexFunctionCall(l base.Lexer) (Flow, error) {
 	// ignore whitespace
 	l.Ignore(token.IsWhitespace)
 
-	if l.CurrentRune() == token.ParaClose {
-		l.Emit(token.TokenParaClose)
+	if l.CurrentRune() == runes.ClosePara {
+		l.Emit(token.ClosePara)
 	}
 
 	return nil, nil

@@ -3,7 +3,8 @@ package value
 type Kind int
 
 const (
-	Unit Kind = iota
+	Error Kind = -1
+	Unit  Kind = iota
 	Bool
 	Int
 	Double

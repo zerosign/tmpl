@@ -3,12 +3,13 @@ package flow
 import (
 	"github.com/rs/zerolog/log"
 	"github.com/zerosign/tmpl/base"
-	"github.com/zerosign/tmpl/runes"
+	"github.com/zerosign/tmpl/runes/block"
+	rutil "github.com/zerosign/tmpl/runes/util"
 	"github.com/zerosign/tmpl/token"
 )
 
 var (
-	NextStateTokens = [][]rune{token.BlockExprOpen, token.BlockAssignOpen, token.BlockCommentOpen}
+	NextStateTokens = [][]rune{block.OpenExpr, block.OpenAssign, block.OpenComment}
 )
 
 // LexText: lexing general text outside block template grammar.
@@ -23,7 +24,7 @@ func LexText(l base.Lexer) (Flow, error) {
 		value = l.RunesAhead()
 
 		// scan for it siblings token
-		if runes.HasAllPrefixes(value, NextStateTokens) {
+		if rutil.AnyPrefixes(value, NextStateTokens) {
 			break
 		}
 
@@ -35,7 +36,7 @@ func LexText(l base.Lexer) (Flow, error) {
 	}
 
 	// emit last token that being scanned (in here token.TokenText)
-	l.Emit(token.TokenText)
+	l.Emit(token.Text)
 
 	return LexTemplate, nil
 }

@@ -1,72 +1,38 @@
 package token
 
 import (
+	"github.com/zerosign/tmpl/runes"
 	"unicode"
 )
 
-const (
-
-	// brace
-	BraceOpen  rune = '{'
-	BraceClose rune = '}'
-
-	// para
-	ParaOpen  rune = '('
-	ParaClose rune = ')'
-
-	// bracket
-	BracketOpen  rune = '['
-	BracketClose rune = ']'
-
-	Quote rune = '"'
-
-	Colon rune = ':'
-
-	Comma rune = ','
-)
+type _void struct{}
 
 var (
-	whitespace = map[rune]struct{}{
-		' ':  struct{}{},
-		'\t': struct{}{},
-		'\n': struct{}{},
-		'\r': struct{}{},
+	void = _void{}
+
+	whitespace = map[rune]_void{
+		' ':  void,
+		'\t': void,
+		'\n': void,
+		'\r': void,
 	}
 
-	symbol = map[rune]struct{}{
-		'_':  struct{}{},
-		'-':  struct{}{},
-		'\'': struct{}{},
+	symbol = map[rune]_void{
+		'_':  void,
+		'-':  void,
+		'\'': void,
 	}
-
-	// blocks
-	BlockExprOpen     = []rune("{{")
-	BlockExprClose    = []rune("}}")
-	BlockAssignOpen   = []rune("{=")
-	BlockAssignClose  = []rune("=}")
-	BlockCommentOpen  = []rune("{#")
-	BlockCommentClose = []rune("#}")
-
-	// reserved keywords
-	KeywordFor   = []rune("for")
-	KeywordDo    = []rune("do")
-	KeywordEnd   = []rune("end")
-	KeywordIf    = []rune("if")
-	KeywordElse  = []rune("else")
-	KeywordElsif = []rune("elsif")
-
-	// symbol
-	SymbolColon rune = ':'
 
 	// RuneCond functions for several runes
-	IsBraceOpen    = IsRuneEq(BraceOpen)
-	IsBraceClose   = IsRuneEq(BraceClose)
-	IsParaOpen     = IsRuneEq(ParaOpen)
-	IsParaClose    = IsRuneEq(ParaClose)
-	IsBracketOpen  = IsRuneEq(BracketOpen)
-	IsBracketClose = IsRuneEq(BracketClose)
-	IsSymbolColon  = IsRuneEq(SymbolColon)
-	IsQuote        = IsRuneEq(Quote)
+	IsOpenBrace    = IsRuneEq(runes.OpenBrace)
+	IsCloseBrace   = IsRuneEq(runes.CloseBrace)
+	IsOpenPara     = IsRuneEq(runes.OpenPara)
+	IsClosePara    = IsRuneEq(runes.ClosePara)
+	IsOpenBracket  = IsRuneEq(runes.OpenBracket)
+	IsCloseBracket = IsRuneEq(runes.CloseBracket)
+	IsColon        = IsRuneEq(runes.Colon)
+	IsQuote        = IsRuneEq(runes.Quote)
+	IsDot          = IsRuneEq(runes.Dot)
 
 	IsPrimitive = func(ch rune) bool {
 		return IsQuote(ch) && unicode.IsDigit(ch)

@@ -3,8 +3,8 @@ package flow
 import (
 	"github.com/rs/zerolog/log"
 	"github.com/zerosign/tmpl/base"
-	"github.com/zerosign/tmpl/runes"
-	"github.com/zerosign/tmpl/token"
+	"github.com/zerosign/tmpl/runes/block"
+	rutil "github.com/zerosign/tmpl/runes/util"
 )
 
 //
@@ -27,11 +27,11 @@ func LexTemplate(l base.Lexer) (Flow, error) {
 	// then assignment
 	// then comment
 	// then text
-	if runes.HasPrefix(value, token.BlockExprOpen) {
+	if rutil.HasPrefix(value, block.OpenExpr) {
 		return LexBlockExprOpen, nil
-	} else if runes.HasPrefix(value, token.BlockAssignOpen) {
+	} else if rutil.HasPrefix(value, block.OpenAssign) {
 		return LexBlockAssignOpen, nil
-	} else if runes.HasPrefix(value, token.BlockCommentOpen) {
+	} else if rutil.HasPrefix(value, block.OpenComment) {
 		return LexBlockCommentOpen, nil
 	} else {
 		// anything other than above

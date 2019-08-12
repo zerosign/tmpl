@@ -2,7 +2,8 @@ package flow
 
 import (
 	"github.com/zerosign/tmpl/base"
-	"github.com/zerosign/tmpl/runes"
+	"github.com/zerosign/tmpl/runes/keyword"
+	rutil "github.com/zerosign/tmpl/runes/util"
 	"github.com/zerosign/tmpl/token"
 )
 
@@ -13,8 +14,10 @@ func LexStmtIf(l base.Lexer) (Flow, error) {
 
 		lexeme := l.RunesAhead()
 
-		if runes.HasPrefix(lexeme, token.KeywordIf) {
-
+		if rutil.HasPrefix(lexeme, keyword.If) {
+			// TODO: @zerosign
+		} else {
+			break
 		}
 	}
 

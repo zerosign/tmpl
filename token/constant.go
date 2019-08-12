@@ -6,31 +6,45 @@ package token
 // error value return for each Flow.
 //
 const (
-	TokenNil Type = iota // since zero value of int is zero
-	TokenText
-	TokenBlockExprOpen
-	TokenBlockExprClose
-	TokenBlockAssignOpen
-	TokenBlockAssignClose
-	TokenBlockComment
-	TokenBlockCommentOpen
-	TokenBlockCommentClose
-	TokenIf
-	TokenFor
-	TokenIn
-	TokenBraceOpen
-	TokenBraceClose
-	TokenIdent
-	TokenLetter
-	TokenColon
-	TokenComma
-	TokenDeclType
-	TokenDo
-	TokenFuncName
-	TokenParaOpen
-	TokenParaClose
-	TokenInteger
-	TokenQuote
-	TokenBracketOpen
-	TokenBracketClose
+	Nil Type = iota // since zero value of int is zero
+	Text
+	If
+	For
+	In
+
+	Ident
+	Letter
+	Colon
+	Comma
+	DeclType
+	Do
+	FuncName
+	Integer
+	Quote
+	Escape
+	String
+	Double
+	Sign
+	Digit
+
+	OpenBrace
+	CloseBrace
+
+	OpenPara
+	ClosePara
+
+	OpenBracket
+	CloseBracket
+
+	OpenExpr
+	CloseExpr
+
+	OpenAssign
+	CloseAssign
+
+	OpenComment
+	CloseComment
+
+	Comment
+
 )

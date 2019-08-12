@@ -5,10 +5,11 @@ import (
 	"testing"
 )
 
-func Sample(ctx Context) (string, error) {
+func Sample(ctx *Context, name string, options ...int) (string, error) {
+
 	return fmt.Sprintf("hello world"), nil
 }
 
-func TestDeclareSimpleFunction() {
-	fn := Convert(Sample)
+func TestDeclareSimpleFunction(t *testing.T) {
+
 }

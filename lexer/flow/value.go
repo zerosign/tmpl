@@ -12,10 +12,10 @@ func LexValue(l base.Lexer) (Flow, error) {
 	// this include quoted string or digit
 	if token.IsPrimitive(ch) {
 		return LexPrimitive, nil
-	} else if token.IsBraceOpen(ch) {
+	} else if token.IsOpenBrace(ch) {
 		// map type
 		return LexMap, nil
-	} else if token.IsBracketOpen(ch) {
+	} else if token.IsOpenBracket(ch) {
 		// array type
 		return LexArray, nil
 	} else {

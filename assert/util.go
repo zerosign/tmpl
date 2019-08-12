@@ -12,7 +12,6 @@ import (
 //
 func AssertNextToken(t *testing.T, lexer base.Lexer) *token.Token {
 	token, err := lexer.Next()
-
 	if err != nil {
 		t.Fatal(err)
 	}

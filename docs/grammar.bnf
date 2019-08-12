@@ -12,6 +12,7 @@
 <true>          ::= "true"
 <false>         ::= "false"
 <boolean>       ::= <true> | <false>
+<number>        ::= <integer> | <float>
 <integer>       ::= (<digit_without_zero>+ <digit>*) | <digit_zero>
 <float>         ::= <integer> <token_dot> <digit>*
 <string>        ::= ( <char> | <whitespace> )*

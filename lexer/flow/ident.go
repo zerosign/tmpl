@@ -13,7 +13,7 @@ func LexIdent(l base.Lexer) (Flow, error) {
 	//
 	// should be a letter
 	if !unicode.IsLetter(l.CurrentRune()) {
-		return nil, NotA(token.TokenLetter)
+		return nil, NotA(token.Letter)
 	}
 
 	if l.HasNext() {
@@ -21,7 +21,7 @@ func LexIdent(l base.Lexer) (Flow, error) {
 		l.TakeWhile(unicode.IsLetter, unicode.IsDigit, token.IsSymbol)
 	}
 
-	l.Emit(token.TokenIdent)
+	l.Emit(token.Ident)
 
 	return nil, nil
 }

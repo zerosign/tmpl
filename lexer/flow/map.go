@@ -2,7 +2,7 @@ package flow
 
 import (
 	"github.com/zerosign/tmpl/base"
-	"github.com/zerosign/tmpl/token"
+	// "github.com/zerosign/tmpl/token"
 )
 
 // { "test": 1 }
