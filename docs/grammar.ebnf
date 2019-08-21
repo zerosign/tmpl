@@ -33,13 +33,14 @@ StaticDictionary = "{" (QuotedString ":" (Primitive | StaticArray | StaticDictio
 TypeDecl = uppercase_letter (Integer | Letter | "_" )* .
 Ident = Letter ( Integer | Letter | "_" | "'"  )* .
 Primitive = Boolean | Integer | Float | QuotedString .
-QuotedString = "\"" any "\"" .
+QuotedString = "\"" escaped_string "\"" .
 Number = Integer | Float .
 Float = Integer "." digit* .
 Integer = ( digit_without_zero digit* ) | digit_zero .
 Letter = uppercase_letter | lowercase_letter .
 Boolean = ( false | true ) .
 
+escaped_string = any - "\"" - "\\" .
 false = "false" .
 true = "true" .
 uppercase_letter = "A"..."Z" .
