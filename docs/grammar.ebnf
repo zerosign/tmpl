@@ -40,6 +40,8 @@ Integer = ( digit_without_zero digit* ) | digit_zero .
 Letter = uppercase_letter | lowercase_letter .
 Boolean = ( false | true ) .
 
+whitespace = newline | "\t" | " " .
+newline = "\r" | "\n" .
 escaped_string = any - "\"" - "\\" .
 false = "false" .
 true = "true" .
