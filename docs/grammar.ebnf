@@ -1,0 +1,50 @@
+Template = TextBlock | CommentBlock | StmtBlock | ExprBlock .
+
+CommentBlock = "{#" TextBlock "#}" .
+StmtBlock = LoopBlock | LogicalBlock .
+ExprBlock = "{=" Expression "=}" .
+TextBlock = any - "{{" - "{=" - "{#" - "}}" - "=}" - "#}" .
+
+LoopBlock = "{{" LoopBeginStmt "}}" Template "{{" LoopEndStmt "}}" .
+LoopBeginStmt = "for" "{" Ident (":" TypeDecl) "," Ident (":" TypeDecl) "}" "in" StaticComplexExpr "do" .
+LoopEndStmt = "end" .
+
+LogicalBlock = "{{" LogicalBeginStmt "}}" Template (LogicalAlternativePartial)* "{{" LogicalEndStmt "}}" .
+LogicalBeginStmt = "if" LogicalExpr "do" .
+LogicalIfElseStmt = "elsif" LogicalExpr "do" .
+LogicalElseStmt = "else" "do" .
+LogicalEndStmt = "end" .
+LogicalAlternativePartial = ( "{{" LogicalIfElseStmt "}}" Template )* "{{" LogicalElseStmt "}}" Template  .
+
+Expression = StaticExpr | FunctionCall .
+ComplexExpr = StaticArray | StaticDictionary | FunctionCall | MacroCall  .
+
+FunctionCall = Ident "(" ( Var ( "," Var )* )* ")" .
+Var = StaticExpr | VarIdent .
+VarIdent = "_" | Ident .
+
+MacroCall = MacroIdent "(" ( StaticExpr ( "," StaticExpr )* )* ")" .
+MacroIdent = Ident "!" .
+
+StaticExpr = StaticArray | StaticDictionary | Primitive  .
+StaticArray = "[" (Primitive ("," Primitive)*)* "]" .
+StaticDictionary = "{" (QuotedString ":" (Primitive | StaticArray | StaticDictionary))* "}" .
+
+TypeDecl = uppercase_letter (Integer | Letter | "_" )* .
+Ident = Letter ( Integer | Letter | "_" | "'"  )* .
+Primitive = Boolean | Integer | Float | QuotedString .
+QuotedString = "\"" any "\"" .
+Number = Integer | Float .
+Float = Integer "." digit* .
+Integer = ( digit_without_zero digit* ) | digit_zero .
+Letter = uppercase_letter | lowercase_letter .
+Boolean = ( false | true ) .
+
+false = "false" .
+true = "true" .
+uppercase_letter = "A"..."Z" .
+lowercase_letter = "a"..."z" .
+digit = digit_zero | digit_without_zero .
+digit_zero = "0" .
+digit_without_zero = "1"..."9" .
+any = "\u0000"..."\uffff" .

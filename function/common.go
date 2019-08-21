@@ -5,7 +5,7 @@ import (
 )
 
 var (
-	errorInterface = reflect.TypeOf((*error)(nil)).Elem()
+	errorInterface   = reflect.TypeOf((*error)(nil)).Elem()
 	contextInterface = reflect.TypeOf((*Context)(nil)).Elem()
 )
 

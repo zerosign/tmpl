@@ -12,6 +12,7 @@ import (
 //
 //
 func LexBlockCommentOpen(l base.Lexer) (Flow, error) {
+
 	log.Debug().Msg("enter BlockCommentOpen")
 	defer log.Debug().Msg("exit BlockCommentOpen")
 

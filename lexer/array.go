@@ -1,8 +1,7 @@
-package flow
+package lexer
 
 import (
 	"github.com/rs/zerolog/log"
-	"github.com/zerosign/tmpl/base"
 	"github.com/zerosign/tmpl/token"
 )
 
@@ -14,7 +13,7 @@ import (
 //
 // currently we only support for 1D array.
 //
-func LexArray(l base.Lexer) (Flow, error) {
+func LexArray(l Lexer) (Flow, error) {
 	log.Debug().Msg("enter array expr")
 	defer log.Debug().Msg("exit array expr")
 

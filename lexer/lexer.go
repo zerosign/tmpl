@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/rs/zerolog/log"
 	"github.com/zerosign/tmpl/base"
+	"github.com/zerosign/tmpl/lexer"
 	"github.com/zerosign/tmpl/lexer/flow"
 	"github.com/zerosign/tmpl/token"
 	"sync/atomic"
@@ -25,7 +26,7 @@ type GenLexer struct {
 // This method also checks whether input string are valid utf8 string or not.
 // If the string are invalid utf8 string, this method will returns error.
 //
-func NewLexer(input string, initial flow.Flow) (base.Lexer, error) {
+func NewLexer(input string, initial flow.Flow) (lexer.Lexer, error) {
 
 	log.Debug().Str("input", input).Str("initial-flow", initial.String()).Msg("create new unsafe lexer")
 

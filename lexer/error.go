@@ -1,23 +1,50 @@
-package lexer
+package flow
 
 import (
 	"fmt"
+	rutil "github.com/zerosign/tmpl/runes/util"
+	"github.com/zerosign/tmpl/token"
 )
 
-// InvalidUtfInput: return an error for invalid utf8 input
+type textCase int
+
+const (
+	upperCase textCase = iota
+	lowerCase
+)
+
+func (t textCase) String() string {
+	if t == upperCase {
+		return "<uppercase>"
+	} else {
+		return "<lowercase>"
+	}
+}
+
+const (
+	Separator rune = ','
+)
+
+// NoMatchToken: Error if there were no matching token
 //
-func InvalidUtfInput() error {
-	return fmt.Errorf("invalid utf8 input")
+func NoMatchToken(scope string, expected [][]rune) error {
+	return fmt.Errorf("no match token for scope %s, expected: (%s)", scope, rutil.Join(expected, Separator))
 }
 
-func UnavailableFlow() error {
-	return fmt.Errorf("flow is nil, hasNext returns false")
+func ZeroPaddedInteger() error {
+	return fmt.Errorf("integer value shouldn't be padded with 0")
 }
 
-func InvalidCursor() error {
-	return fmt.Errorf("no backward cursor available")
+// NotA: return an error that give whether current token is not
+//
+func NotA(tt token.Type) error {
+	return fmt.Errorf("current token is not %s", tt)
 }
 
-func LexerChannelClosed() error {
-	return fmt.Errorf("channel is closed")
+func CaseError(expected, result textCase) error {
+	return fmt.Errorf("expected case: %s got %s", expected, result)
+}
+
+func UnsupportedValueType() error {
+	return fmt.Errorf("unsupported value type")
 }

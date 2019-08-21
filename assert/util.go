@@ -1,7 +1,6 @@
 package assert
 
 import (
-	"github.com/zerosign/tmpl/base"
 	"github.com/zerosign/tmpl/token"
 	"testing"
 )
