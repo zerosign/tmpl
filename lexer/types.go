@@ -1,8 +1,10 @@
-package flow
+package lexer
 
 import (
 	"fmt"
-	"github.com/zerosign/tmpl/base"
+	"github.com/zerosign/tmpl/common"
+	"github.com/zerosign/tmpl/token"
+	"io"
 	"reflect"
 	"runtime"
 )
@@ -10,10 +12,10 @@ import (
 // Combinators : interface that deals with lexer combinators
 //
 type Combinators interface {
-	TakeWhile(conds ...token.RuneCond)
-	AcceptAll(conds ...token.RuneCond) bool
-	Accept(cond token.RuneCond) bool
-	Ignore(cond token.RuneCond)
+	TakeWhile(conds ...RuneCond)
+	AcceptAll(conds ...RuneCond) bool
+	Accept(cond RuneCond) bool
+	Ignore(cond RuneCond)
 }
 
 // RuneCursorInfo : interface that deals with rune user info based on cursor info.
@@ -43,8 +45,8 @@ type TokenEmiter interface {
 // HasCursor : interface that represents mutator and accessor for cursor.
 //
 type HasCursor interface {
-	Cursor() Cursor
-	CursorMut() *Cursor
+	Cursor() common.Cursor
+	CursorMut() *common.Cursor
 }
 
 // Lexer : final interface that represents a lexer.

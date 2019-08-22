@@ -1,5 +1,0 @@
-package token
-
-import (
-	"testing"
-)

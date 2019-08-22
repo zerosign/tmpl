@@ -1,4 +1,4 @@
-package block
+package lexer
 
 var (
 	// blocks

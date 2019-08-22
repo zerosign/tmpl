@@ -1,10 +1,7 @@
-package flow
+package lexer
 
 import (
 	"github.com/rs/zerolog/log"
-	"github.com/zerosign/tmpl/base"
-	"github.com/zerosign/tmpl/runes/block"
-	rutil "github.com/zerosign/tmpl/runes/util"
 )
 
 //
@@ -12,7 +9,7 @@ import (
 //
 // template are also terminal state.
 //
-func LexTemplate(l base.Lexer) (Flow, error) {
+func TemplateFlow(l Lexer) (Flow, error) {
 	log.Debug().Msg("enter LexTemplate")
 	defer log.Debug().Msg("exit LexTemplate")
 
@@ -21,20 +18,12 @@ func LexTemplate(l base.Lexer) (Flow, error) {
 		return nil, nil
 	}
 
-	value := l.RunesAhead()
+	// value := l.RunesAhead()
 
 	// test if it's expression
 	// then assignment
 	// then comment
 	// then text
-	if rutil.HasPrefix(value, block.OpenExpr) {
-		return LexBlockExprOpen, nil
-	} else if rutil.HasPrefix(value, block.OpenAssign) {
-		return LexBlockAssignOpen, nil
-	} else if rutil.HasPrefix(value, block.OpenComment) {
-		return LexBlockCommentOpen, nil
-	} else {
-		// anything other than above
-		return LexText, nil
-	}
+
+	return nil, nil
 }

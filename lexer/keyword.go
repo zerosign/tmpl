@@ -1,4 +1,4 @@
-package keyword
+package lexer
 
 var (
 	// reserved keywords

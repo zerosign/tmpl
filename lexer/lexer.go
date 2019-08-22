@@ -1,11 +1,9 @@
-package impl
+package lexer
 
 import (
 	"fmt"
 	"github.com/rs/zerolog/log"
-	"github.com/zerosign/tmpl/base"
-	"github.com/zerosign/tmpl/lexer"
-	"github.com/zerosign/tmpl/lexer/flow"
+	"github.com/zerosign/tmpl/common"
 	"github.com/zerosign/tmpl/token"
 	"sync/atomic"
 	"unicode/utf8"
@@ -15,8 +13,8 @@ import (
 //
 type GenLexer struct {
 	inner  []rune
-	cursor base.Cursor
-	flow   flow.Flow
+	cursor common.Cursor
+	flow   Flow
 	tokens chan token.Token
 	flag   atomic.Value
 }
@@ -26,13 +24,13 @@ type GenLexer struct {
 // This method also checks whether input string are valid utf8 string or not.
 // If the string are invalid utf8 string, this method will returns error.
 //
-func NewLexer(input string, initial flow.Flow) (lexer.Lexer, error) {
+func NewLexer(input string, initial Flow) (Lexer, error) {
 
 	log.Debug().Str("input", input).Str("initial-flow", initial.String()).Msg("create new unsafe lexer")
 
 	// check for valid utf-8 string
 	if !utf8.ValidString(input) {
-		return nil, InvalidUtfInput()
+		return nil, InvalidUtfInput(input)
 	}
 
 	var flag atomic.Value
@@ -40,7 +38,7 @@ func NewLexer(input string, initial flow.Flow) (lexer.Lexer, error) {
 
 	return &GenLexer{
 		inner:  []rune(input),
-		cursor: base.ZeroCursor(),
+		cursor: common.ZeroCursor(),
 		flow:   initial,
 		tokens: make(chan token.Token, 5),
 		flag:   flag,
@@ -53,13 +51,13 @@ func NewLexer(input string, initial flow.Flow) (lexer.Lexer, error) {
 // This method checks whether input string are valid utf8 string or not.
 // If the string are invalid utf8 string, this method will returns error.
 //
-func DefaultLexer(input string) (base.Lexer, error) {
-	return NewLexer(input, flow.LexTemplate)
+func DefaultLexer(input string) (Lexer, error) {
+	return NewLexer(input, TemplateFlow)
 }
 
 // Cursor: Get current cursor
 //
-func (l GenLexer) Cursor() base.Cursor {
+func (l GenLexer) Cursor() common.Cursor {
 	return l.cursor
 }
 
@@ -67,7 +65,7 @@ func (l GenLexer) Cursor() base.Cursor {
 //
 // Being used for `in-place` update.
 //
-func (l *GenLexer) CursorMut() *base.Cursor {
+func (l *GenLexer) CursorMut() *common.Cursor {
 	return &l.cursor
 }
 
@@ -202,7 +200,7 @@ func (l GenLexer) StartRune() rune {
 //
 // Note: This advance current cursor
 //
-func (l GenLexer) TakeWhile(conds ...token.RuneCond) {
+func (l GenLexer) TakeWhile(conds ...RuneCond) {
 
 	flag := true
 
@@ -222,7 +220,7 @@ func (l GenLexer) TakeWhile(conds ...token.RuneCond) {
 //
 // Note: This advance current cursor
 //
-func (l GenLexer) AcceptAll(conds ...token.RuneCond) bool {
+func (l GenLexer) AcceptAll(conds ...RuneCond) bool {
 	flag := true
 
 	for _, cond := range conds {
@@ -235,7 +233,7 @@ func (l GenLexer) AcceptAll(conds ...token.RuneCond) bool {
 //
 // Note: This advance current cursor
 //
-func (l GenLexer) AcceptWhile(conds ...token.RuneCond) bool {
+func (l GenLexer) AcceptWhile(conds ...RuneCond) bool {
 	flag := true
 
 	for {
@@ -254,7 +252,7 @@ func (l GenLexer) AcceptWhile(conds ...token.RuneCond) bool {
 //
 // Note: This advance current cursor
 //
-func (l GenLexer) Accept(cond token.RuneCond) bool {
+func (l GenLexer) Accept(cond RuneCond) bool {
 	if cond(l.CurrentRune()) {
 		if l.Available() {
 			l.Advance()
@@ -266,7 +264,7 @@ func (l GenLexer) Accept(cond token.RuneCond) bool {
 	return false
 }
 
-func (l GenLexer) Ignore(cond token.RuneCond) {
+func (l GenLexer) Ignore(cond RuneCond) {
 	for {
 		ch := l.CurrentRune()
 		if cond(ch) && l.Available() {

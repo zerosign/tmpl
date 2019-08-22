@@ -1,8 +1,8 @@
-package flow
+package lexer
 
 import (
 	"fmt"
-	rutil "github.com/zerosign/tmpl/runes/util"
+	"github.com/zerosign/tmpl/runes"
 	"github.com/zerosign/tmpl/token"
 )
 
@@ -28,7 +28,7 @@ const (
 // NoMatchToken: Error if there were no matching token
 //
 func NoMatchToken(scope string, expected [][]rune) error {
-	return fmt.Errorf("no match token for scope %s, expected: (%s)", scope, rutil.Join(expected, Separator))
+	return fmt.Errorf("no match token for scope %s, expected: (%s)", scope, runes.JoinString(expected, Separator))
 }
 
 func ZeroPaddedInteger() error {
@@ -45,6 +45,22 @@ func CaseError(expected, result textCase) error {
 	return fmt.Errorf("expected case: %s got %s", expected, result)
 }
 
+func InvalidUtfInput(input string) error {
+	return fmt.Errorf("input below is not valid utf input:\n%v", input)
+}
+
 func UnsupportedValueType() error {
 	return fmt.Errorf("unsupported value type")
+}
+
+func UnavailableFlow() error {
+	return fmt.Errorf("flow is nil, hasNext returns false")
+}
+
+func InvalidCursor() error {
+	return fmt.Errorf("no backward cursor available")
+}
+
+func LexerChannelClosed() error {
+	return fmt.Errorf("channel is closed")
 }
