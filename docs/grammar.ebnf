@@ -1,22 +1,26 @@
-Template = TextBlock | CommentBlock | StmtBlock | ExprBlock .
+Template = Block (Block)* .
+
+Block = TextBlock | CommentBlock | StmtBlock | ExprBlock .
 
 CommentBlock = "{#" TextBlock "#}" .
 StmtBlock = LoopBlock | LogicalBlock .
 ExprBlock = "{=" Expression "=}" .
-TextBlock = any - "{{" - "{=" - "{#" - "}}" - "=}" - "#}" .
+TextBlock = Text? .
 
-LoopBlock = "{{" LoopBeginStmt "}}" Template "{{" LoopEndStmt "}}" .
+LoopBlock = "{{" LoopBeginStmt "}}" Block "{{" LoopEndStmt "}}" .
+
 LoopBeginStmt = "for" "{" Ident (":" TypeDecl) "," Ident (":" TypeDecl) "}" "in" StaticComplexExpr "do" .
 LoopEndStmt = "end" .
 
-LogicalBlock = "{{" LogicalBeginStmt "}}" Template (LogicalAlternativePartial)* "{{" LogicalEndStmt "}}" .
+LogicalBlock = "{{" LogicalBeginStmt "}}" Block (LogicalAlternativePartial)* "{{" LogicalEndStmt "}}" .
 LogicalBeginStmt = "if" LogicalExpr "do" .
 LogicalIfElseStmt = "elsif" LogicalExpr "do" .
 LogicalElseStmt = "else" "do" .
 LogicalEndStmt = "end" .
-LogicalAlternativePartial = ( "{{" LogicalIfElseStmt "}}" Template )* "{{" LogicalElseStmt "}}" Template  .
+LogicalAlternativePartial = ( "{{" LogicalIfElseStmt "}}" Block )* "{{" LogicalElseStmt "}}" Block .
 
-Expression = StaticExpr | FunctionCall .
+Expression = FunctionCall | IntExpr | BoolExpr | FloatExpr | String .
+
 ComplexExpr = StaticArray | StaticDictionary | FunctionCall | MacroCall  .
 
 FunctionCall = Ident "(" ( Var ( "," Var )* )* ")" .
@@ -26,10 +30,11 @@ VarIdent = "_" | Ident .
 MacroCall = MacroIdent "(" ( StaticExpr ( "," StaticExpr )* )* ")" .
 MacroIdent = Ident "!" .
 
-StaticExpr = StaticArray | StaticDictionary | Primitive  .
+StaticValue = StaticArray | StaticDictionary | Primitive  .
 StaticArray = "[" (Primitive ("," Primitive)*)* "]" .
 StaticDictionary = "{" (QuotedString ":" (Primitive | StaticArray | StaticDictionary))* "}" .
 
+Text = any - "{{" - "{=" - "{#" - "}}" - "=}" - "#}" .
 TypeDecl = uppercase_letter (Integer | Letter | "_" )* .
 Ident = Letter ( Integer | Letter | "_" | "'"  )* .
 Primitive = Boolean | Integer | Float | QuotedString .
@@ -40,6 +45,9 @@ Integer = ( digit_without_zero digit* ) | digit_zero .
 Letter = uppercase_letter | lowercase_letter .
 Boolean = ( false | true ) .
 
+logical_op = "&&" | "||" .
+equality_op = "==" | "<=" | "=>" | "<" | ">" .
+arithmetic_op = "+" | "-" | "/" | "*" .
 whitespace = newline | "\t" | " " .
 newline = "\r" | "\n" .
 escaped_string = any - "\"" - "\\" .
