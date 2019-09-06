@@ -1,0 +1,12 @@
+[package]
+name = "tmpl"
+version = "0.1.0"
+authors = ["zerosign <r1nlx0@gmail.com>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+combine = "3.8.1"
+log = "0.4.8"
+env_logger = "0.6.2"
