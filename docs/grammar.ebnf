@@ -1,0 +1,64 @@
+Template = Block' (Block)* .
+
+Block' = TextBlock | Block .
+Block = CommentBlock | StmtBlock | ExprBlock .
+
+CommentBlock = "{#" CommentText "#}" .
+CommentText = any - "#}" .
+
+StmtBlock = LoopBlock | LogicalBlock .
+ExprBlock = "{=" Expression "=}" .
+TextBlock = Text? .
+
+LoopBlock = "{{" LoopBeginStmt "}}" Block "{{" LoopEndStmt "}}" .
+LoopBeginStmt = "for" "{" Ident (":" TypeDecl) "," Ident (":" TypeDecl) "}" "in" StaticComplexExpr "do" .
+LoopEndStmt = "end" .
+
+LogicalBlock = "{{" LogicalBeginStmt "}}" Block (LogicalAlternativePartial)* "{{" LogicalEndStmt "}}" .
+LogicalBeginStmt = "if" LogicalExpr "do" .
+LogicalIfElseStmt = "elsif" LogicalExpr "do" .
+LogicalElseStmt = "else" "do" .
+LogicalEndStmt = "end" .
+LogicalAlternativePartial = ( "{{" LogicalIfElseStmt "}}" Block )* "{{" LogicalElseStmt "}}" Block .
+
+Expression = FunctionCall | StaticValue .
+
+ComplexExpr = StaticArray | StaticDictionary | FunctionCall | MacroCall  .
+
+FunctionCall = Ident "(" ( Var ( "," Var )* )* ")" .
+Var = StaticExpr | VarIdent .
+VarIdent = "_" | Ident .
+
+MacroCall = MacroIdent "(" ( StaticExpr ( "," StaticExpr )* )* ")" .
+MacroIdent = Ident "!" .
+
+StaticValue = StaticArray | StaticDictionary | Primitive  .
+StaticArray = "[" (Primitive ("," Primitive)*)* "]" .
+StaticDictionary = "{" (QuotedString ":" (Primitive | StaticArray | StaticDictionary))* "}" .
+
+Text = any - "{{" - "{=" - "{#" - "}}" - "=}" - "#}" .
+TypeDecl = uppercase_letter (Integer | Letter | "_" )* .
+Ident = Letter ( Integer | Letter | "_" | "'"  )* .
+Primitive = Boolean | Number | QuotedString .
+QuotedString = "\"" escaped_string "\"" .
+Number = Integer | Float .
+Float = Integer "." digit* .
+Integer = sign? ( digit_without_zero digit* ) | digit_zero .
+Letter = uppercase_letter | lowercase_letter .
+Boolean = ( false | true ) .
+
+sign_op = "-" | "+"
+logical_op = "&&" | "||" .
+equality_op = "==" | "<=" | "=>" | "<" | ">" .
+arithmetic_op = sign_op | "/" | "*" .
+whitespace = newline | "\t" | " " .
+newline = "\r" | "\n" .
+escaped_string = any - "\"" - "\\" .
+false = "false" .
+true = "true" .
+uppercase_letter = "A"..."Z" .
+lowercase_letter = "a"..."z" .
+digit = digit_zero | digit_without_zero .
+digit_zero = "0" .
+digit_without_zero = "1"..."9" .
+any = "\u0000"..."\uffff" .

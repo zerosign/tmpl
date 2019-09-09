@@ -1,13 +1,18 @@
+use crate::ast::Ident;
 use combine::{
-    parser::char::{lower, upper},
-    ParseErrpr, Parser, Stream,
+    error::ParseError,
+    parser::{
+        char::{char, digit, letter, lower, upper},
+        repeat::many,
+    },
+    Parser, Stream,
 };
 
 //
 // IdentLike = (Digit | Letter | "_")* "'"* .
 //
-
-fn ident_like<I>() -> impl Parser<Input = I, Output = String>
+#[inline]
+pub fn ident_like<I>() -> impl Parser<Input = I, Output = String>
 where
     I: Stream<Item = char>,
     I::Error: ParseError<I::Item, I::Range, I::Position>,
@@ -21,7 +26,7 @@ where
 // Ident = Lower IdentLike .
 //
 #[inline]
-fn ident<I>() -> impl Parser<Input = I, Output = Ident>
+pub fn ident<I>() -> impl Parser<Input = I, Output = Ident>
 where
     I: Stream<Item = char>,
     I::Error: ParseError<I::Item, I::Range, I::Position>,
@@ -35,7 +40,8 @@ where
         .map(|s| Ident::Ident(s))
 }
 
-fn macro_ident<I>() -> impl Parser<Input = I, Output = Ident>
+#[inline]
+pub fn macro_ident<I>() -> impl Parser<Input = I, Output = Ident>
 where
     I: Stream<Item = char>,
     I::Error: ParseError<I::Item, I::Range, I::Position>,
@@ -51,16 +57,14 @@ where
             b.push(ch);
             b
         })
-        .map(|t: String| {
-            Ident::MacroIdent(t)
-        }}
+        .map(|t: String| Ident::MacroIdent(t))
 }
 
 //
 // TypeDecl = Upper IdentLike .
 //
 #[inline]
-fn type_decl<I>() -> impl Parser<Input = I, Output = Ident>
+pub fn type_decl<I>() -> impl Parser<Input = I, Output = Ident>
 where
     I: Stream<Item = char>,
     I::Error: ParseError<I::Item, I::Range, I::Position>,
