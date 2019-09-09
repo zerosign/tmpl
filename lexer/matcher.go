@@ -1,6 +1,7 @@
 package lexer
 
 import (
+	"github.com/zerosign/tmpl/runes"
 	"unicode"
 )
 
@@ -101,4 +102,16 @@ func IsDigitWithoutZero(r rune) bool {
 //
 func IsAny(r rune) bool {
 	return r >= '\u0000' && r <= '\uffff'
+}
+
+func IsCommentBlock(input []rune) bool {
+	return runes.Compare(input, OpenComment)
+}
+
+func IsStmtBlock(input []rune) bool {
+	return runes.Compare(input, OpenStmt)
+}
+
+func IsExprBlock(input []rune) bool {
+	return runes.Compare(input, OpenExpr)
 }

@@ -1,4 +1,4 @@
-SRC_DIRS = assert base runes value lexer ast
+SRC_DIRS = ast common function lexer parser runes runtime token value
 
 all: compile test doc
 

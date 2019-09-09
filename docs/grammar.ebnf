@@ -1,14 +1,16 @@
-Template = Block (Block)* .
+Template = Block' (Block)* .
 
-Block = TextBlock | CommentBlock | StmtBlock | ExprBlock .
+Block' = TextBlock | Block .
+Block = CommentBlock | StmtBlock | ExprBlock .
 
-CommentBlock = "{#" TextBlock "#}" .
+CommentBlock = "{#" CommentText "#}" .
+CommentText = any - "#}" .
+
 StmtBlock = LoopBlock | LogicalBlock .
 ExprBlock = "{=" Expression "=}" .
 TextBlock = Text? .
 
 LoopBlock = "{{" LoopBeginStmt "}}" Block "{{" LoopEndStmt "}}" .
-
 LoopBeginStmt = "for" "{" Ident (":" TypeDecl) "," Ident (":" TypeDecl) "}" "in" StaticComplexExpr "do" .
 LoopEndStmt = "end" .
 
@@ -19,7 +21,7 @@ LogicalElseStmt = "else" "do" .
 LogicalEndStmt = "end" .
 LogicalAlternativePartial = ( "{{" LogicalIfElseStmt "}}" Block )* "{{" LogicalElseStmt "}}" Block .
 
-Expression = FunctionCall | IntExpr | BoolExpr | FloatExpr | String .
+Expression = FunctionCall | StaticValue .
 
 ComplexExpr = StaticArray | StaticDictionary | FunctionCall | MacroCall  .
 
@@ -37,17 +39,18 @@ StaticDictionary = "{" (QuotedString ":" (Primitive | StaticArray | StaticDictio
 Text = any - "{{" - "{=" - "{#" - "}}" - "=}" - "#}" .
 TypeDecl = uppercase_letter (Integer | Letter | "_" )* .
 Ident = Letter ( Integer | Letter | "_" | "'"  )* .
-Primitive = Boolean | Integer | Float | QuotedString .
+Primitive = Boolean | Number | QuotedString .
 QuotedString = "\"" escaped_string "\"" .
 Number = Integer | Float .
 Float = Integer "." digit* .
-Integer = ( digit_without_zero digit* ) | digit_zero .
+Integer = sign? ( digit_without_zero digit* ) | digit_zero .
 Letter = uppercase_letter | lowercase_letter .
 Boolean = ( false | true ) .
 
+sign_op = "-" | "+"
 logical_op = "&&" | "||" .
 equality_op = "==" | "<=" | "=>" | "<" | ">" .
-arithmetic_op = "+" | "-" | "/" | "*" .
+arithmetic_op = sign_op | "/" | "*" .
 whitespace = newline | "\t" | " " .
 newline = "\r" | "\n" .
 escaped_string = any - "\"" - "\\" .

@@ -6,12 +6,10 @@ import (
 	"github.com/zerosign/tmpl/function"
 )
 
-
 const (
 	FieldTemplatePath = "template_path"
 	FieldTemplateName = "template_name"
 )
-
 
 type Template struct {
 	ctx  function.Context
@@ -20,6 +18,7 @@ type Template struct {
 }
 
 func (t Template) TemplateName() string {
+
 	return t.ctx[FieldTemplateName].(string)
 }
 

@@ -2,10 +2,10 @@ package lexer
 
 var (
 	// blocks
-	OpenExpr     = []rune("{{")
-	CloseExpr    = []rune("}}")
-	OpenAssign   = []rune("{=")
-	CloseAssign  = []rune("=}")
+	OpenStmt     = []rune("{{")
+	CloseStmt    = []rune("}}")
+	OpenExpr     = []rune("{=")
+	CloseExpr    = []rune("=}")
 	OpenComment  = []rune("{#")
 	CloseComment = []rune("#}")
 )

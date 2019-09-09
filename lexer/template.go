@@ -5,25 +5,29 @@ import (
 )
 
 //
-// <template> : (<expression> | <assignment> | <comment> | <text>) <template>
+// Block = TextBlock | CommentBlock | StmtBlock | ExprBlock .
 //
 // template are also terminal state.
 //
-func TemplateFlow(l Lexer) (Flow, error) {
-	log.Debug().Msg("enter LexTemplate")
-	defer log.Debug().Msg("exit LexTemplate")
+func BlockFlow(l Lexer) (Flow, error) {
+	log.Debug().Msg("enter BlockFlow")
+	defer log.Debug().Msg("exit BlockFlow")
 
 	// terminal
 	if !l.Available() {
 		return nil, nil
 	}
 
-	// value := l.RunesAhead()
+	value := l.RunesAhead()
 
-	// test if it's expression
-	// then assignment
-	// then comment
-	// then text
-
-	return nil, nil
+	// check whether its comment block
+	if IsCommentBlock(value) {
+		return CommentBlockFlow, nil
+	} else if IsStmtBlock(value) {
+		return StmtBlockFlow, nil
+	} else if IsExprBlock(value) {
+		return ExprBlockFlow, nil
+	} else {
+		return TextBlockFlow, nil
+	}
 }
