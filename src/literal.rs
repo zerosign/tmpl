@@ -90,7 +90,7 @@ where
     I: Stream<Item = char>,
     I::Error: ParseError<I::Item, I::Range, I::Position>,
 {
-    quoted_str_().map(|s| Literal::String(s))
+    quoted_str_().map(Literal::String)
 }
 
 //
@@ -103,7 +103,7 @@ where
     I::Error: ParseError<I::Item, I::Range, I::Position>,
 {
     many1(digit()).then(|s: String| {
-        if s.len() > 1 && s.starts_with("0") {
+        if s.len() > 1 && s.starts_with('0') {
             unexpected_any('0')
                 .message("no `0` before any digit at beginning in integer")
                 .right()
@@ -125,7 +125,7 @@ where
 //
 //
 #[inline]
-fn fractional<'a, I>() -> impl Parser<Input = I, Output = f64>
+fn fractional<I>() -> impl Parser<Input = I, Output = f64>
 where
     I: Stream<Item = char>,
     I::Error: ParseError<I::Item, I::Range, I::Position>,
@@ -145,7 +145,7 @@ where
 //
 //
 #[inline]
-pub fn number<'a, I>() -> impl Parser<Input = I, Output = Literal>
+pub fn number<I>() -> impl Parser<Input = I, Output = Literal>
 where
     I: Stream<Item = char>,
     I::Error: ParseError<I::Item, I::Range, I::Position>,

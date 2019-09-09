@@ -1,4 +1,3 @@
-#![deny(warnings)]
 #![feature(try_trait)]
 extern crate combine;
 extern crate env_logger;

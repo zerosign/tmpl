@@ -37,7 +37,7 @@ where
             b.insert(0, ch);
             b
         })
-        .map(|s| Ident::Ident(s))
+        .map(Ident::Ident)
 }
 
 #[inline]
@@ -57,7 +57,7 @@ where
             b.push(ch);
             b
         })
-        .map(|t: String| Ident::MacroIdent(t))
+        .map(Ident::MacroIdent)
 }
 
 //
@@ -75,7 +75,7 @@ where
             b.insert(0, ch);
             b
         })
-        .map(|s| Ident::TypeDecl(s))
+        .map(Ident::TypeDecl)
 }
 
 #[test]
@@ -83,13 +83,13 @@ fn test_type_decl() {
     // allow char '_'
     assert_eq!(
         type_decl().parse("Hello_World").unwrap().0,
-        Ident::TypeDecl("Hello_World")
+        Ident::TypeDecl(String::from("Hello_World"))
     );
 
     // allow char '\''
     assert_eq!(
         type_decl().parse("Integer'").unwrap().0,
-        Ident::TypeDecl("Integer'")
+        Ident::TypeDecl(String::from("Integer'"))
     );
 }
 
@@ -97,7 +97,7 @@ fn test_type_decl() {
 fn test_ident() {
     assert_eq!(
         ident().parse("hello_world").unwrap().0,
-        Ident::Ident("hello_world"),
+        Ident::Ident(String::from("hello_world")),
     );
 }
 
@@ -105,6 +105,6 @@ fn test_ident() {
 fn test_macro_ident() {
     assert_eq!(
         macro_ident().parse("println!").unwrap().0,
-        Ident::MacroIdent("println!"),
+        Ident::MacroIdent(String::from("println!")),
     )
 }
