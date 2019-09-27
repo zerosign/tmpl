@@ -1,17 +1,8 @@
-use combine::{
-    char::{char, spaces, string},
-    error::{Consumed, ParseError, StreamError},
-    parser::{
-        choice::choice,
-        error::unexpected,
-        item::{position, value},
-    },
-    Parser, Stream,
-};
+use combine::{char::string, error::ParseError, parser::choice::choice, Parser, Stream};
 
 use std::convert::TryFrom;
 
-use crate::{ast, literal};
+use crate::ast;
 
 #[inline]
 pub fn arithmetic_op<I>() -> impl Parser<Input = I, Output = ast::ArithmOp>

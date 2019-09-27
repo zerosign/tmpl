@@ -1,7 +1,14 @@
 // use combine::stream::state::SourcePosition;
-use std::{collections::HashMap, convert::TryFrom};
+use crate::{
+    error::CastError,
+    types::{Apply, BinaryOp},
+};
 
-use crate::types::BinaryOp;
+use std::{
+    any::TypeId,
+    collections::HashMap,
+    convert::{TryFrom, TryInto},
+};
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum LogicalOp {
@@ -92,7 +99,7 @@ impl<'a> TryFrom<&'a str> for ArithmOp {
     }
 }
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Copy)]
 pub enum BoolOp {
     Or,
     And,
@@ -122,6 +129,62 @@ impl<'a> TryFrom<&'a str> for BoolOp {
             "||" => Ok(Self::Or),
             "&&" => Ok(Self::And),
             _ => Err(()),
+        }
+    }
+}
+
+impl<T> BinaryOp<T, bool> for BoolOp
+where
+    T: AsRef<Boolean>,
+{
+    fn apply(&self, lhs: T, rhs: T) -> bool {
+        match (lhs.as_ref(), self, rhs.as_ref()) {
+            (Boolean::Literal(ref l), Self::Or, Boolean::Literal(ref r)) => *l || *r,
+            (Boolean::Literal(ref l), Self::Or, Boolean::Expr(ref r)) => {
+                *l || r.op.apply(r.lhs, r.rhs)
+            }
+            (Boolean::Expr(l), Self::Or, Boolean::Literal(r)) => l.op.apply(l.lhs, l.rhs) || *r,
+            (Boolean::Expr(l), Self::Or, Boolean::Expr(r)) => {
+                l.op.apply(l.lhs, l.rhs) || r.op.apply(r.lhs, r.rhs)
+            }
+            (Boolean::Literal(l), Self::And, Boolean::Literal(r)) => *l && *r,
+            (Boolean::Literal(l), Self::And, Boolean::Expr(r)) => *l && r.op.apply(r.lhs, r.rhs),
+            (Boolean::Expr(l), Self::And, Boolean::Literal(r)) => l.op.apply(l.lhs, l.rhs) && *r,
+            (Boolean::Expr(l), Self::And, Boolean::Expr(r)) => {
+                l.op.apply(l.lhs, l.rhs) && r.op.apply(r.lhs, r.rhs)
+            }
+        }
+    }
+}
+
+impl BinaryOp<Box<Boolean>, Box<Boolean>> for BoolOp {
+    fn apply(&self, lhs: Box<Boolean>, rhs: Box<Boolean>) -> Box<Boolean> {
+        match (*lhs, self, *rhs) {
+            (Boolean::Literal(l), Self::Or, Boolean::Literal(r)) => {
+                Box::new(Boolean::Literal(l || r))
+            }
+            (Boolean::Literal(l), Self::Or, Boolean::Expr(r)) => {
+                Box::new(Boolean::Literal(l || r.op.apply(r.lhs, r.rhs)))
+            }
+            (Boolean::Expr(l), Self::Or, Boolean::Literal(r)) => {
+                Box::new(Boolean::Literal(l.op.apply(l.lhs, l.rhs) || r))
+            }
+
+            (Boolean::Expr(l), Self::Or, Boolean::Expr(r)) => Box::new(Boolean::Literal(
+                l.op.apply(l.lhs, l.rhs) || r.op.apply(r.lhs, r.rhs),
+            )),
+            (Boolean::Literal(l), Self::And, Boolean::Literal(r)) => {
+                Box::new(Boolean::Literal(l && r))
+            }
+            (Boolean::Literal(l), Self::And, Boolean::Expr(r)) => {
+                Box::new(Boolean::Literal(l && r.op.apply(r.lhs, r.rhs)))
+            }
+            (Boolean::Expr(l), Self::And, Boolean::Literal(r)) => {
+                Box::new(Boolean::Literal(l.op.apply(l.lhs, l.rhs) && r))
+            }
+            (Boolean::Expr(l), Self::And, Boolean::Expr(r)) => Box::new(Boolean::Literal(
+                l.op.apply(l.lhs, l.rhs) && r.op.apply(r.lhs, r.rhs),
+            )),
         }
     }
 }
@@ -232,9 +295,22 @@ pub enum Literal {
     Optional(Optional<Literal>),
 }
 
-#[derive(Debug, PartialEq)]
-pub enum BoolExpr {
+impl<'a> TryInto<Boolean> for Literal {
+    type Error = CastError<Self>;
+
+    #[inline]
+    fn try_into(self) -> Result<Boolean, Self::Error> {
+        match self {
+            Self::Bool(v) => Ok(Boolean::Literal(v)),
+            _ => Err(CastError::IncompatibleCast(self, TypeId::of::<Boolean>())),
+        }
+    }
+}
+
+#[derive(Debug, PartialEq, Copy)]
+pub enum Boolean {
     Literal(bool),
+    Expr(SimpleExpr<BoolOp, Box<Boolean>>),
 }
 
 #[derive(Debug, PartialEq)]
@@ -297,15 +373,25 @@ pub enum LogicalStmt {
     ElseClause(),
 }
 
-#[derive(Debug, PartialEq)]
-pub struct SimpleExpr<I, O>
+#[derive(Debug, PartialEq, Copy)]
+pub struct SimpleExpr<O, I>
 where
-    O: BinaryOp,
-    I: Sized + PartialEq,
+    O: BinaryOp<I, I>,
+    I: Sized + PartialEq + Copy,
 {
     op: O,
     lhs: I,
     rhs: I,
+}
+
+impl<O, I> Apply<I> for SimpleExpr<O, I>
+where
+    O: BinaryOp<I, I>,
+    I: Sized + PartialEq + Copy,
+{
+    fn apply(&self) -> I {
+        self.op.apply(self.lhs, self.rhs)
+    }
 }
 
 // expression ast are recursively defined (it's quite dangerous to be defined).

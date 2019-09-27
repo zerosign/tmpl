@@ -1,18 +1,27 @@
 // in binary operator, both input should have the same
 // types while the output could be different.
 //
-pub trait BinaryOp {
-    type Input: Sized;
-    type Output: Sized;
-
-    fn apply(&self, lhs: Self::Input, rhs: Self::Input) -> Self::Output;
+pub trait BinaryOp<I, O>
+where
+    I: Sized,
+    O: Sized,
+{
+    fn apply(&self, lhs: I, rhs: I) -> O;
 }
 
 // Unary operator, this is required to implement NegationOp.
 //
-pub trait UnaryOp {
-    type Input: Sized;
-    type Output: Sized;
+pub trait UnaryOp<I, O>
+where
+    I: Sized,
+    O: Sized,
+{
+    fn apply(&self, input: I) -> O;
+}
 
-    fn apply(&self, input: Self::Input) -> Self::Output;
+pub trait Apply<O>
+where
+    O: Sized,
+{
+    fn apply(&self) -> O;
 }
