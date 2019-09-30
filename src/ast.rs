@@ -6,6 +6,7 @@ use std::{
     cell::Cell,
     collections::HashMap,
     convert::{TryFrom, TryInto},
+    iter::IntoIterator,
 };
 
 #[derive(Debug, Clone, PartialEq)]
@@ -162,22 +163,8 @@ pub struct Text<'a> {
 pub enum Block<'a> {
     Comment(Comment<'a>),
     Statement(Statement<'a>),
-    Expression(Expression),
+    Expr(Expr),
     Text(Text<'a>),
-}
-
-//
-// Expression sum type repr.
-//
-// Currently, expression sum types only contains :
-// - Literal (static value)
-// - Functional call value
-// - TODO: Boolean expr
-//
-#[derive(Debug, PartialEq)]
-pub enum Expression {
-    Literal(Literal),
-    // FunctionCall(FunctionCall),
 }
 
 //
@@ -222,8 +209,6 @@ type Optional<T> = Option<Box<T>>;
 // - Number ~ f64 and i64 (no unsigned integer)
 // - String ~ String (owned type)
 // - Bool ~ boolean type
-// - Dictionary
-// - Array
 // - Optional type
 //
 #[derive(Debug, PartialEq)]
@@ -231,9 +216,90 @@ pub enum Literal {
     Number(Number),
     String(String),
     Bool(bool),
-    Dictionary(HashMap<String, Literal>),
-    Array(Vec<Literal>),
     Optional(Optional<Literal>),
+}
+
+impl Literal {
+    #[inline]
+    pub(crate) fn integer<V>(v: V) -> Literal
+    where
+        V: Into<i64>,
+    {
+        Literal::Number(Number::Integer(v.into()))
+    }
+
+    #[inline]
+    pub(crate) fn double<V>(v: V) -> Literal
+    where
+        V: Into<f64>,
+    {
+        Literal::Number(Number::Double(v.into()))
+    }
+
+    #[inline]
+    pub(crate) fn string<V>(v: V) -> Literal
+    where
+        V: Into<String>,
+    {
+        Literal::String(v.into())
+    }
+
+    #[inline]
+    pub(crate) fn bool<V>(v: V) -> Literal
+    where
+        V: Into<bool>,
+    {
+        Literal::Bool(v.into())
+    }
+}
+
+macro_rules! literal_conv {
+    ($($conv:path => [$($src:ty),*]),*) => {
+        $($(impl From<$src> for Literal {
+            fn from(v: $src) -> Self {
+                $conv(v)
+            }
+        })*)*
+    }
+}
+
+//
+// Note: we don't support u64 at this point.
+//
+literal_conv!(
+    Literal::integer => [u8, u16, u32, i8, i16, i32, i64],
+    Literal::double  => [f32, f64],
+    Literal::string  => [String, &'static str],
+    Literal::bool    => [bool]
+);
+
+// value =
+//   value = literal
+//   dictionary<string, value>
+//   array<value>
+//
+// - Dictionary
+// - Array
+//
+#[derive(Debug, PartialEq)]
+pub enum Value {
+    Literal(Literal),
+    Dictionary(HashMap<String, Value>),
+    Array(Vec<Value>),
+}
+
+impl Value {
+    pub fn literal_array<I, V>(i: I) -> Value
+    where
+        I: IntoIterator<Item = V>,
+        V: Into<Literal>,
+    {
+        Value::Array(
+            i.into_iter()
+                .map(|v| Value::Literal(V::into(v)))
+                .collect::<Vec<Value>>(),
+        )
+    }
 }
 
 #[derive(Debug, PartialEq)]
@@ -308,6 +374,7 @@ pub enum Expr {
     LogicalExpr(LogicalExpr),
     NegatedExpr(NegatedExpr),
     NegatifExpr(ArithmExpr),
+    LiteralExpr(Literal),
 }
 
 #[derive(Debug, PartialEq)]

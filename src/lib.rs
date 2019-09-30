@@ -11,3 +11,4 @@ pub mod literal;
 pub mod logical;
 pub mod operator;
 pub mod types;
+pub mod value;

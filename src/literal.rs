@@ -1,14 +1,23 @@
+//!
+//! Literal parser.
+//!
+//! ```
+//! literal =
+//!   number = integer double
+//!   string
+//!   bool
+//! ```
+//!
 use crate::ast::{Literal, Number};
 use combine::{
     char::{char, digit, spaces, string},
     error::{Consumed, ParseError},
-    parser,
     parser::{
-        choice::{choice, optional},
+        choice::optional,
         error::unexpected_any,
         function::parser as fparser,
         item::{any, satisfy_map, value},
-        repeat::{many, many1, sep_by},
+        repeat::{many, many1},
         sequence::between,
     },
     stream::Stream,
@@ -16,7 +25,7 @@ use combine::{
 };
 
 #[inline]
-pub fn bool<I>() -> impl Parser<Input = I, Output = Literal>
+pub fn bool_literal<I>() -> impl Parser<Input = I, Output = Literal>
 where
     I: Stream<Item = char>,
     I::Error: ParseError<I::Item, I::Range, I::Position>,
@@ -71,7 +80,7 @@ where
 }
 
 #[inline]
-pub fn quoted_str_<I>() -> impl Parser<Input = I, Output = String>
+pub fn raw_string<I>() -> impl Parser<Input = I, Output = String>
 where
     I: Stream<Item = char>,
     I::Error: ParseError<I::Item, I::Range, I::Position>,
@@ -85,12 +94,12 @@ where
 }
 
 #[inline]
-pub fn quoted_str<I>() -> impl Parser<Input = I, Output = Literal>
+pub fn string_literal<I>() -> impl Parser<Input = I, Output = Literal>
 where
     I: Stream<Item = char>,
     I::Error: ParseError<I::Item, I::Range, I::Position>,
 {
-    quoted_str_().map(Literal::String)
+    raw_string().map(Literal::String)
 }
 
 //
@@ -145,7 +154,7 @@ where
 //
 //
 #[inline]
-pub fn number<I>() -> impl Parser<Input = I, Output = Literal>
+pub fn number_literal<I>() -> impl Parser<Input = I, Output = Literal>
 where
     I: Stream<Item = char>,
     I::Error: ParseError<I::Item, I::Range, I::Position>,
@@ -162,48 +171,70 @@ where
         })
 }
 
-#[inline]
-pub fn dict<I>() -> impl Parser<Input = I, Output = Literal>
-where
-    I: Stream<Item = char>,
-    I::Error: ParseError<I::Item, I::Range, I::Position>,
-{
-    let field = (quoted_str_(), char(':').skip(spaces()), static_value()).map(|t| (t.0, t.2));
-    let fields = sep_by(field, char(',').skip(spaces()));
+#[test]
+fn test_number_literal() {
+    assert_eq!(
+        number_literal().parse("1000000000"),
+        Ok((Literal::integer(1000000000), ""))
+    );
 
-    between(char('{').skip(spaces()), char('}').skip(spaces()), fields)
-        .map(Literal::Dictionary)
-        .expected("dictionary")
+    assert_eq!(
+        number_literal().parse("1000000000.0"),
+        Ok((Literal::double(1000000000.0), ""))
+    );
+
+    assert_eq!(
+        number_literal().parse("-1000000000"),
+        Ok((Literal::integer(-1000000000), ""))
+    );
+
+    assert_eq!(
+        number_literal().parse("-1000000000.0"),
+        Ok((Literal::double(-1000000000.0), ""))
+    );
+
+    assert_eq!(
+        number_literal().parse("-0.0"),
+        Ok((Literal::double(-0.0), ""))
+    );
+
+    assert_eq!(
+        number_literal().parse("0.0"),
+        Ok((Literal::double(0.0), ""))
+    );
+
+    assert_eq!(
+        number_literal().parse("0.011111111"),
+        Ok((Literal::double(0.011111111), ""))
+    );
 }
 
-// pub fn optional<T>(p: P) -> impl Parser<Input = I, Output = Literal::Optional>
-// where
-//     I: Stream<Item = char>,
-//     I::Error: ParseError<I::Item, I::Range, I::Position>,
-// {
-//     string("null")
-// }
-
-parser! {
-    #[inline]
-    pub fn static_value_[I]()(I) -> Literal
-    where [ I: Stream<Item = char> ]
-    {
-        let array = between(
-            char('[').skip(spaces()),
-            char(']').skip(spaces()),
-            sep_by(static_value(), char(',').skip(spaces()))
-        ).map(Literal::Array);
-
-        choice((bool(), quoted_str(), array, dict(), number()))
-    }
+#[test]
+fn test_bool_literal() {
+    assert_eq!(bool_literal().parse("true"), Ok((Literal::bool(true), "")));
+    assert_eq!(
+        bool_literal().parse("false"),
+        Ok((Literal::bool(false), ""))
+    );
 }
 
-#[inline]
-pub fn static_value<I>() -> impl Parser<Input = I, Output = Literal>
-where
-    I: Stream<Item = char>,
-    I::Error: ParseError<I::Item, I::Range, I::Position>,
-{
-    static_value_()
+#[test]
+fn test_string_literal() {
+    assert_eq!(
+        string_literal().parse(r#""Hello world\ntest!""#),
+        Ok((Literal::string("Hello world\ntest!"), ""))
+    );
+
+    assert_eq!(
+        string_literal().parse(r#""""#),
+        Ok((Literal::string(""), ""))
+    );
+
+    // TODO: quoted string test
+    // assert_eq!(
+    //     string_literal().parse("\\\"\\\""),
+    //     Ok((Literal::string("\"\""), ""))
+    // );
+
+    // TODO: escaped string test
 }
