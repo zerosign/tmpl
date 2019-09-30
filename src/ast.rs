@@ -6,6 +6,7 @@ use crate::{
 
 use std::{
     any::TypeId,
+    cell::Cell,
     collections::HashMap,
     convert::{TryFrom, TryInto},
 };
@@ -59,7 +60,7 @@ impl<'a> TryFrom<&'a str> for LogicalOp {
 #[derive(Debug, Clone, PartialEq)]
 pub enum ArithmOp {
     Add,
-    Substract,
+    Subtract,
     Multiply,
     Divide,
     Modulo,
@@ -70,7 +71,7 @@ impl ArithmOp {
     pub fn operator(&self) -> &'static str {
         match self {
             Self::Add => "+",
-            Self::Substract => "-",
+            Self::Subtract => "-",
             Self::Multiply => "*",
             Self::Divide => "/",
             Self::Modulo => "%",
@@ -236,7 +237,6 @@ pub enum Block<'a> {
 pub enum Expression {
     Literal(Literal),
     // FunctionCall(FunctionCall),
-    BoolExpr,
 }
 
 //
@@ -307,10 +307,10 @@ impl<'a> TryInto<Boolean> for Literal {
     }
 }
 
-#[derive(Debug, PartialEq, Copy)]
+#[derive(Debug, PartialEq)]
 pub enum Boolean {
     Literal(bool),
-    Expr(SimpleExpr<BoolOp, Box<Boolean>>),
+    // Expr(SimpleExpr<BoolOp, Cell<Boolean>>),
 }
 
 #[derive(Debug, PartialEq)]
@@ -373,7 +373,7 @@ pub enum LogicalStmt {
     ElseClause(),
 }
 
-#[derive(Debug, PartialEq, Copy)]
+#[derive(Debug, PartialEq)]
 pub struct SimpleExpr<O, I>
 where
     O: BinaryOp<I, I>,
