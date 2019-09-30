@@ -1,6 +1,11 @@
 // in binary operator, both input should have the same
 // types while the output could be different.
 //
+pub trait Operator {
+    fn operator(&self) -> &'static str;
+    fn all() -> [&'static str];
+}
+
 pub trait BinaryOp<I, O>
 where
     I: Sized,

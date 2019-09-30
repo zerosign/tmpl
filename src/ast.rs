@@ -1,8 +1,5 @@
 // use combine::stream::state::SourcePosition;
-use crate::{
-    error::CastError,
-    types::{Apply, BinaryOp},
-};
+use crate::error::CastError;
 
 use std::{
     any::TypeId,
@@ -91,7 +88,7 @@ impl<'a> TryFrom<&'a str> for ArithmOp {
     fn try_from(op: &'a str) -> Result<Self, Self::Error> {
         match op {
             "+" => Ok(Self::Add),
-            "-" => Ok(Self::Substract),
+            "-" => Ok(Self::Subtract),
             "*" => Ok(Self::Multiply),
             "/" => Ok(Self::Divide),
             "%" => Ok(Self::Modulo),
@@ -134,62 +131,6 @@ impl<'a> TryFrom<&'a str> for BoolOp {
     }
 }
 
-impl<T> BinaryOp<T, bool> for BoolOp
-where
-    T: AsRef<Boolean>,
-{
-    fn apply(&self, lhs: T, rhs: T) -> bool {
-        match (lhs.as_ref(), self, rhs.as_ref()) {
-            (Boolean::Literal(ref l), Self::Or, Boolean::Literal(ref r)) => *l || *r,
-            (Boolean::Literal(ref l), Self::Or, Boolean::Expr(ref r)) => {
-                *l || r.op.apply(r.lhs, r.rhs)
-            }
-            (Boolean::Expr(l), Self::Or, Boolean::Literal(r)) => l.op.apply(l.lhs, l.rhs) || *r,
-            (Boolean::Expr(l), Self::Or, Boolean::Expr(r)) => {
-                l.op.apply(l.lhs, l.rhs) || r.op.apply(r.lhs, r.rhs)
-            }
-            (Boolean::Literal(l), Self::And, Boolean::Literal(r)) => *l && *r,
-            (Boolean::Literal(l), Self::And, Boolean::Expr(r)) => *l && r.op.apply(r.lhs, r.rhs),
-            (Boolean::Expr(l), Self::And, Boolean::Literal(r)) => l.op.apply(l.lhs, l.rhs) && *r,
-            (Boolean::Expr(l), Self::And, Boolean::Expr(r)) => {
-                l.op.apply(l.lhs, l.rhs) && r.op.apply(r.lhs, r.rhs)
-            }
-        }
-    }
-}
-
-impl BinaryOp<Box<Boolean>, Box<Boolean>> for BoolOp {
-    fn apply(&self, lhs: Box<Boolean>, rhs: Box<Boolean>) -> Box<Boolean> {
-        match (*lhs, self, *rhs) {
-            (Boolean::Literal(l), Self::Or, Boolean::Literal(r)) => {
-                Box::new(Boolean::Literal(l || r))
-            }
-            (Boolean::Literal(l), Self::Or, Boolean::Expr(r)) => {
-                Box::new(Boolean::Literal(l || r.op.apply(r.lhs, r.rhs)))
-            }
-            (Boolean::Expr(l), Self::Or, Boolean::Literal(r)) => {
-                Box::new(Boolean::Literal(l.op.apply(l.lhs, l.rhs) || r))
-            }
-
-            (Boolean::Expr(l), Self::Or, Boolean::Expr(r)) => Box::new(Boolean::Literal(
-                l.op.apply(l.lhs, l.rhs) || r.op.apply(r.lhs, r.rhs),
-            )),
-            (Boolean::Literal(l), Self::And, Boolean::Literal(r)) => {
-                Box::new(Boolean::Literal(l && r))
-            }
-            (Boolean::Literal(l), Self::And, Boolean::Expr(r)) => {
-                Box::new(Boolean::Literal(l && r.op.apply(r.lhs, r.rhs)))
-            }
-            (Boolean::Expr(l), Self::And, Boolean::Literal(r)) => {
-                Box::new(Boolean::Literal(l.op.apply(l.lhs, l.rhs) && r))
-            }
-            (Boolean::Expr(l), Self::And, Boolean::Expr(r)) => Box::new(Boolean::Literal(
-                l.op.apply(l.lhs, l.rhs) && r.op.apply(r.lhs, r.rhs),
-            )),
-        }
-    }
-}
-
 //
 // Comment repr type.
 //
@@ -220,7 +161,7 @@ pub struct Text<'a> {
 #[derive(Debug, PartialEq)]
 pub enum Block<'a> {
     Comment(Comment<'a>),
-    Statement(Box<Statement<'a>>),
+    Statement(Statement<'a>),
     Expression(Expression),
     Text(Text<'a>),
 }
@@ -295,24 +236,6 @@ pub enum Literal {
     Optional(Optional<Literal>),
 }
 
-impl<'a> TryInto<Boolean> for Literal {
-    type Error = CastError<Self>;
-
-    #[inline]
-    fn try_into(self) -> Result<Boolean, Self::Error> {
-        match self {
-            Self::Bool(v) => Ok(Boolean::Literal(v)),
-            _ => Err(CastError::IncompatibleCast(self, TypeId::of::<Boolean>())),
-        }
-    }
-}
-
-#[derive(Debug, PartialEq)]
-pub enum Boolean {
-    Literal(bool),
-    // Expr(SimpleExpr<BoolOp, Cell<Boolean>>),
-}
-
 #[derive(Debug, PartialEq)]
 pub enum TypeKind {
     Bool,
@@ -345,7 +268,7 @@ pub enum Ident {
 pub enum Statement<'a> {
     MacroStmt,
     IteratorStmt(IteratorStmt<'a>),
-    LogicalStmt(LogicalStmt),
+    LogicalStmt(LogicalStmt<'a>),
 }
 
 #[derive(Debug, PartialEq)]
@@ -359,7 +282,13 @@ pub struct TypeInfo {
 pub struct IteratorStmt<'a> {
     key: TypeInfo,
     value: TypeInfo,
-    inner: Block<'a>,
+    inner: Box<Block<'a>>,
+}
+
+#[derive(Debug, PartialEq)]
+pub struct LogicalClause<'a> {
+    inner: Vec<BoolExpr>,
+    block: Option<Box<Block<'a>>>,
 }
 
 //
@@ -367,33 +296,42 @@ pub struct IteratorStmt<'a> {
 //
 //
 #[derive(Debug, PartialEq)]
-pub enum LogicalStmt {
-    IfClause(),
-    IfElseClause,
-    ElseClause(),
+pub enum LogicalStmt<'a> {
+    Base(LogicalClause<'a>),
+    Alt(Option<Box<Block<'a>>>),
 }
 
 #[derive(Debug, PartialEq)]
-pub struct SimpleExpr<O, I>
-where
-    O: BinaryOp<I, I>,
-    I: Sized + PartialEq + Copy,
-{
-    op: O,
-    lhs: I,
-    rhs: I,
+pub enum Expr {
+    BoolExpr(BoolExpr),
+    ArithmExpr(ArithmExpr),
+    LogicalExpr(LogicalExpr),
+    NegatedExpr(NegatedExpr),
+    NegatifExpr(ArithmExpr),
 }
 
-impl<O, I> Apply<I> for SimpleExpr<O, I>
-where
-    O: BinaryOp<I, I>,
-    I: Sized + PartialEq + Copy,
-{
-    fn apply(&self) -> I {
-        self.op.apply(self.lhs, self.rhs)
-    }
+#[derive(Debug, PartialEq)]
+pub struct NegatedExpr {
+    v: Box<BoolExpr>,
 }
 
-// expression ast are recursively defined (it's quite dangerous to be defined).
-//
-// pub type LogicalExpr = SimpleExpr<Literal, LogicalOp>;
+#[derive(Debug, PartialEq)]
+pub struct BoolExpr {
+    lhs: Box<LogicalExpr>,
+    rhs: Box<LogicalExpr>,
+    op: BoolOp,
+}
+
+#[derive(Debug, PartialEq)]
+pub struct ArithmExpr {
+    lhs: Box<Expr>,
+    rhs: Box<Expr>,
+    op: ArithmOp,
+}
+
+#[derive(Debug, PartialEq)]
+pub struct LogicalExpr {
+    lhs: Box<Expr>,
+    rhs: Box<Expr>,
+    op: LogicalOp,
+}

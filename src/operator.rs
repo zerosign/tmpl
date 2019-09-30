@@ -26,7 +26,7 @@ where
     // let operator = choice(operators.into());
 
     // TODO: please convert error rather doing an unwrap like this
-    operator.and_then(move |s| ast::ArithmOp::try_from(s)?)
+    operator.map(move |s| ast::ArithmOp::try_from(s).unwrap())
 }
 
 #[inline]

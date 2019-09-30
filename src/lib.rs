@@ -1,4 +1,4 @@
-#![feature(try_trait, const_fn)]
+#![feature(try_trait, const_fn, const_generics)]
 extern crate combine;
 extern crate env_logger;
 extern crate log;
