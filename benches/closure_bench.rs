@@ -33,5 +33,5 @@ pub fn closure_simple(c: &mut Criterion) {
     );
 }
 
-criterion_group!(benches, closure_benchmark);
+criterion_group!(benches, closure_simple);
 criterion_main!(benches);

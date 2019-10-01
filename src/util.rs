@@ -6,6 +6,31 @@ use combine::{
     unexpected_any, value, ParseError, Parser, Stream,
 };
 
+use std::iter;
+
+#[derive(PartialEq, Default)]
+pub(crate) struct StackSize {
+    inner: usize,
+}
+
+impl StackSize {
+    #[inline]
+    pub const fn size(&self) -> usize {
+        self.inner
+    }
+}
+
+impl iter::Extend<char> for StackSize {
+    fn extend<T>(&mut self, iter: T)
+    where
+        T: IntoIterator<Item = char>,
+    {
+        for _ in iter {
+            self.inner += 1;
+        }
+    }
+}
+
 //
 // Helper for creating (post)-padding space parser after actual parser.
 //
@@ -38,12 +63,11 @@ where
     P: Parser<Input = I, Output = O>,
     I::Error: ParseError<I::Item, I::Range, I::Position>,
 {
-    repeat::many::<Vec<char>, _>(lex::<_, _, char>(char(closure.0)))
-        .map(|v| v.len())
+    repeat::many::<StackSize, _>(lex::<_, _, char>(char(closure.0)))
         .and(lex::<_, _, O>(p))
         .then(move |(stack, v)| {
-            repeat::count::<Vec<char>, _>(stack, char(closure.1)).then(move |x| {
-                if x.len() == stack {
+            repeat::count::<StackSize, _>(stack.size(), char(closure.1)).then(move |x| {
+                if x == stack {
                     value(v).left()
                 } else {
                     unexpected_any(')').right()
