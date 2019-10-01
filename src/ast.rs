@@ -396,6 +396,38 @@ pub struct ArithmExpr {
     op: ArithmOp,
 }
 
+impl TryFrom<((Literal, ArithmOp), Literal)> for ArithmExpr {
+    type Error = ();
+
+    #[inline]
+    fn try_from(v: ((Literal, ArithmOp), Literal)) -> Result<ArithmExpr, Self::Error> {
+        match v {
+            ((Literal::Number(l), o), Literal::Number(r)) => Ok(ArithmExpr {
+                lhs: Box::new(Expr::LiteralExpr(Literal::Number(l))),
+                rhs: Box::new(Expr::LiteralExpr(Literal::Number(r))),
+                op: o,
+            }),
+            _ => Err(()),
+        }
+    }
+}
+
+impl TryFrom<((Literal, ArithmOp), ArithmExpr)> for ArithmExpr {
+    type Error = ();
+
+    #[inline]
+    fn try_from(v: ((Literal, ArithmOp), ArithmExpr)) -> Result<ArithmExpr, Self::Error> {
+        match v {
+            ((Literal::Number(l), o), r) => Ok(ArithmExpr {
+                lhs: Box::new(Expr::LiteralExpr(Literal::Number(l))),
+                rhs: Box::new(Expr::ArithmExpr(r)),
+                op: o,
+            }),
+            _ => Err(()),
+        }
+    }
+}
+
 #[derive(Debug, PartialEq)]
 pub struct LogicalExpr {
     lhs: Box<Expr>,

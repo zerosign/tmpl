@@ -1,3 +1,11 @@
+//!
+//! ```
+//! value =
+//!   value = literal
+//!   dictionary<string, value>
+//!   array<value>
+//! ```
+//!
 use crate::{ast::Value, literal};
 use combine::{
     char::{char, spaces},
