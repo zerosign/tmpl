@@ -8,7 +8,10 @@
 //!   bool
 //! ```
 //!
-use crate::ast::{Literal, Number};
+use crate::{
+    ast::{Literal, Number},
+    util::{lex, para},
+};
 use combine::{
     char::{char, digit, spaces, string},
     error::{Consumed, ParseError},
@@ -159,7 +162,7 @@ where
     I: Stream<Item = char>,
     I::Error: ParseError<I::Item, I::Range, I::Position>,
 {
-    optional(char('-'))
+    optional(lex::<_, _, char>(char('-')))
         .map(|c| if c.is_some() { -1 } else { 1 })
         .and(integer())
         .and(optional(char('.').with(fractional())))

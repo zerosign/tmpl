@@ -4,6 +4,7 @@ extern crate env_logger;
 extern crate log;
 
 pub mod ast;
+pub mod consts;
 pub mod error;
 pub mod expr;
 pub mod ident;

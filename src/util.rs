@@ -59,7 +59,7 @@ pub fn closure<I, P, O>(
 ) -> impl Parser<Input = I, Output = P::Output>
 where
     I: Stream<Item = char>,
-    O: Copy,
+    O: Clone,
     P: Parser<Input = I, Output = O>,
     I::Error: ParseError<I::Item, I::Range, I::Position>,
 {
@@ -68,12 +68,25 @@ where
         .then(move |(stack, v)| {
             repeat::count::<StackSize, _>(stack.size(), char(closure.1)).then(move |x| {
                 if x == stack {
-                    value(v).left()
+                    value(v.clone()).left()
                 } else {
                     unexpected_any(')').right()
                 }
             })
         })
+}
+
+const ParaClosure: &'static (char, char) = &('(', ')');
+
+#[inline]
+pub fn para<I, P, O>(p: P) -> impl Parser<Input = I, Output = P::Output>
+where
+    I: Stream<Item = char>,
+    O: Clone,
+    P: Parser<Input = I, Output = O>,
+    I::Error: ParseError<I::Item, I::Range, I::Position>,
+{
+    closure(p, ParaClosure)
 }
 
 #[test]
@@ -93,4 +106,9 @@ fn test_closure() {
     assert!(closure::<_, _, &str>(string("true"), &('(', ')'))
         .parse("(((true))")
         .is_err());
+
+    assert_eq!(
+        closure::<_, _, &str>(string("true"), &('(', ')')).parse("true"),
+        Ok(("true", ""))
+    );
 }

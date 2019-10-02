@@ -6,7 +6,11 @@
 //!   array<value>
 //! ```
 //!
-use crate::{ast::Value, literal};
+use crate::{
+    ast::{Literal, Value},
+    literal,
+    util::para,
+};
 use combine::{
     char::{char, spaces},
     error::ParseError,
@@ -21,11 +25,11 @@ where
     I: Stream<Item = char>,
     I::Error: ParseError<I::Item, I::Range, I::Position>,
 {
-    choice((
+    para::<_, _, Literal>(choice((
         literal::bool_literal(),
         literal::string_literal(),
         literal::number_literal(),
-    ))
+    )))
     .map(|l| Value::Literal(l))
 }
 

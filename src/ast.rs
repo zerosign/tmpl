@@ -135,7 +135,7 @@ impl<'a> TryFrom<&'a str> for BoolOp {
 //
 // Comment repr type.
 //
-#[derive(Debug, PartialEq)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct Comment<'a> {
     value: &'a str,
 }
@@ -143,7 +143,7 @@ pub struct Comment<'a> {
 //
 // Type repr type.
 //
-#[derive(Debug, PartialEq)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct Text<'a> {
     value: &'a str,
     // position: (usize, usize),
@@ -159,7 +159,7 @@ pub struct Text<'a> {
 // - expression (`{= ... =}`)
 // - `tmpl` text block (other than above)
 //
-#[derive(Debug, PartialEq)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum Block<'a> {
     Comment(Comment<'a>),
     Statement(Statement<'a>),
@@ -195,7 +195,7 @@ pub enum Block<'a> {
 //
 // Number representations in `tmpl`.
 //
-#[derive(Debug, PartialEq)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum Number {
     Integer(i64),
     Double(f64),
@@ -211,7 +211,7 @@ type Optional<T> = Option<Box<T>>;
 // - Bool ~ boolean type
 // - Optional type
 //
-#[derive(Debug, PartialEq)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum Literal {
     Number(Number),
     String(String),
@@ -302,7 +302,7 @@ impl Value {
     }
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum TypeKind {
     Bool,
     Number,
@@ -314,7 +314,7 @@ pub enum TypeKind {
 //
 // `ident`-like types.
 //
-#[derive(Debug, PartialEq)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum Ident {
     Ident(String),
     TypeDecl(String),
@@ -330,28 +330,28 @@ pub enum Ident {
 // - iterator statement
 // - logical statement
 //
-#[derive(Debug, PartialEq)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum Statement<'a> {
     MacroStmt,
     IteratorStmt(IteratorStmt<'a>),
     LogicalStmt(LogicalStmt<'a>),
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct TypeInfo {
     name: String,
     kind: TypeKind,
     optional: bool,
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct IteratorStmt<'a> {
     key: TypeInfo,
     value: TypeInfo,
     inner: Box<Block<'a>>,
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct LogicalClause<'a> {
     inner: Vec<BoolExpr>,
     block: Option<Box<Block<'a>>>,
@@ -361,13 +361,13 @@ pub struct LogicalClause<'a> {
 // Note: Logical statement should have alternative Else clause.
 //
 //
-#[derive(Debug, PartialEq)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum LogicalStmt<'a> {
     Base(LogicalClause<'a>),
     Alt(Option<Box<Block<'a>>>),
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum Expr {
     BoolExpr(BoolExpr),
     ArithmExpr(ArithmExpr),
@@ -377,19 +377,19 @@ pub enum Expr {
     LiteralExpr(Literal),
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct NegatedExpr {
     v: Box<BoolExpr>,
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct BoolExpr {
     lhs: Box<LogicalExpr>,
     rhs: Box<LogicalExpr>,
     op: BoolOp,
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct ArithmExpr {
     lhs: Box<Expr>,
     rhs: Box<Expr>,
@@ -428,7 +428,7 @@ impl TryFrom<((Literal, ArithmOp), ArithmExpr)> for ArithmExpr {
     }
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct LogicalExpr {
     lhs: Box<Expr>,
     rhs: Box<Expr>,
