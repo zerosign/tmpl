@@ -13,18 +13,13 @@ use crate::{
     util::{lex, para},
 };
 use combine::{
+    any, between,
     char::{char, digit, spaces, string},
-    error::{Consumed, ParseError},
-    parser::{
-        choice::optional,
-        error::unexpected_any,
-        function::parser as fparser,
-        item::{any, satisfy_map, value},
-        repeat::{many, many1},
-        sequence::between,
-    },
-    stream::Stream,
-    Parser,
+    easy,
+    error::Consumed,
+    many, many1, optional,
+    parser::function::parser as fparser,
+    satisfy_map, unexpected_any, value, ParseError, Parser, Stream,
 };
 
 #[inline]
@@ -33,9 +28,11 @@ where
     I: Stream<Item = char>,
     I::Error: ParseError<I::Item, I::Range, I::Position>,
 {
-    string("true")
-        .map(|_| Literal::Bool(true))
-        .or(string("false").map(|_| Literal::Bool(false)))
+    para(
+        string("true")
+            .map(|_| Literal::Bool(true))
+            .or(string("false").map(|_| Literal::Bool(false))),
+    )
 }
 
 #[inline]
@@ -102,7 +99,7 @@ where
     I: Stream<Item = char>,
     I::Error: ParseError<I::Item, I::Range, I::Position>,
 {
-    raw_string().map(Literal::String)
+    para(raw_string().map(Literal::String))
 }
 
 //
@@ -162,16 +159,18 @@ where
     I: Stream<Item = char>,
     I::Error: ParseError<I::Item, I::Range, I::Position>,
 {
-    optional(lex::<_, _, char>(char('-')))
-        .map(|c| if c.is_some() { -1 } else { 1 })
-        .and(integer())
-        .and(optional(char('.').with(fractional())))
-        .map(|arg| match arg {
-            ((mult, exp), Some(frac)) => {
-                Literal::Number(Number::Double((exp as f64 + frac) * (mult as f64)))
-            }
-            ((mult, exp), None) => Literal::Number(Number::Integer(exp * mult)),
-        })
+    para(
+        optional(lex(char('-')))
+            .map(|c| if c.is_some() { -1 } else { 1 })
+            .and(integer())
+            .and(optional(char('.').with(fractional())))
+            .map(|arg| match arg {
+                ((mult, exp), Some(frac)) => {
+                    Literal::Number(Number::Double((exp as f64 + frac) * (mult as f64)))
+                }
+                ((mult, exp), None) => Literal::Number(Number::Integer(exp * mult)),
+            }),
+    )
 }
 
 #[test]

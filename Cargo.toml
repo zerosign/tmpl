@@ -9,6 +9,8 @@ edition = "2018"
 [dev-dependencies]
 criterion = "0.3"
 lazy_static = "1.4.0"
+flate2 = { version = "1.0", features = ["rust_backend"], default-features = false }
+tar = "0.4"
 
 [[bench]]
 name = "closure_bench"

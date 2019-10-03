@@ -1,11 +1,16 @@
+//!
+//! A list of  parser for ident like structure .
+//!
+//! it can be one of :
+//! - macro call
+//! - function call
+//! - type declaration
+//!
 use crate::ast::Ident;
 use combine::{
-    error::ParseError,
-    parser::{
-        char::{char, digit, letter, lower, upper},
-        repeat::many,
-    },
-    Parser, Stream,
+    many,
+    parser::char::{char, digit, letter, lower, upper},
+    ParseError, Parser, Stream,
 };
 
 //

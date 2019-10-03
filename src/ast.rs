@@ -1,13 +1,7 @@
 // use combine::stream::state::SourcePosition;
-use crate::error::CastError;
 
-use std::{
-    any::TypeId,
-    cell::Cell,
-    collections::HashMap,
-    convert::{TryFrom, TryInto},
-    iter::IntoIterator,
-};
+use crate::error::ParseError;
+use std::{any::TypeId, collections::HashMap, convert::TryFrom, iter::IntoIterator};
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum LogicalOp {
@@ -39,7 +33,7 @@ impl LogicalOp {
 }
 
 impl<'a> TryFrom<&'a str> for LogicalOp {
-    type Error = ();
+    type Error = ParseError<'a>;
 
     #[inline]
     fn try_from(op: &'a str) -> Result<Self, Self::Error> {
@@ -50,7 +44,7 @@ impl<'a> TryFrom<&'a str> for LogicalOp {
             "<" => Ok(Self::LT),
             ">=" => Ok(Self::GTE),
             "<=" => Ok(Self::LTE),
-            _ => Err(()),
+            _ => Err(ParseError::operator(op, TypeId::of::<Self>())),
         }
     }
 }
@@ -83,7 +77,7 @@ impl ArithmOp {
 }
 
 impl<'a> TryFrom<&'a str> for ArithmOp {
-    type Error = ();
+    type Error = ParseError<'a>;
 
     #[inline]
     fn try_from(op: &'a str) -> Result<Self, Self::Error> {
@@ -93,7 +87,7 @@ impl<'a> TryFrom<&'a str> for ArithmOp {
             "*" => Ok(Self::Multiply),
             "/" => Ok(Self::Divide),
             "%" => Ok(Self::Modulo),
-            _ => Err(()),
+            _ => Err(ParseError::operator(op, TypeId::of::<Self>())),
         }
     }
 }
@@ -120,14 +114,14 @@ impl BoolOp {
 }
 
 impl<'a> TryFrom<&'a str> for BoolOp {
-    type Error = ();
+    type Error = ParseError<'a>;
 
     #[inline]
     fn try_from(op: &'a str) -> Result<Self, Self::Error> {
         match op {
             "||" => Ok(Self::Or),
             "&&" => Ok(Self::And),
-            _ => Err(()),
+            _ => Err(ParseError::operator(op, TypeId::of::<Self>())),
         }
     }
 }
@@ -256,6 +250,8 @@ impl Literal {
 macro_rules! literal_conv {
     ($($conv:path => [$($src:ty),*]),*) => {
         $($(impl From<$src> for Literal {
+
+            #[inline]
             fn from(v: $src) -> Self {
                 $conv(v)
             }

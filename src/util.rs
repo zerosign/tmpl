@@ -36,7 +36,7 @@ impl iter::Extend<char> for StackSize {
 //
 //
 #[inline]
-pub fn lex<I, P, O>(p: P) -> impl Parser<Input = I, Output = P::Output>
+pub fn lex<I, P>(p: P) -> impl Parser<Input = I, Output = P::Output>
 where
     P: Parser<Input = I>,
     I: Stream<Item = char>,
@@ -59,18 +59,18 @@ pub fn closure<I, P, O>(
 ) -> impl Parser<Input = I, Output = P::Output>
 where
     I: Stream<Item = char>,
-    O: Clone,
     P: Parser<Input = I, Output = O>,
+    O: Clone,
     I::Error: ParseError<I::Item, I::Range, I::Position>,
 {
-    repeat::many::<StackSize, _>(lex::<_, _, char>(char(closure.0)))
-        .and(lex::<_, _, O>(p))
+    repeat::many::<StackSize, _>(lex(char(closure.0)))
+        .and(lex(p))
         .then(move |(stack, v)| {
             repeat::count::<StackSize, _>(stack.size(), char(closure.1)).then(move |x| {
                 if x == stack {
                     value(v.clone()).left()
                 } else {
-                    unexpected_any(')').right()
+                    unexpected_any(closure.1).right()
                 }
             })
         })
@@ -82,16 +82,16 @@ const ParaClosure: &'static (char, char) = &('(', ')');
 pub fn para<I, P, O>(p: P) -> impl Parser<Input = I, Output = P::Output>
 where
     I: Stream<Item = char>,
-    O: Clone,
     P: Parser<Input = I, Output = O>,
+    O: Clone,
     I::Error: ParseError<I::Item, I::Range, I::Position>,
 {
-    closure(p, ParaClosure)
+    closure::<_, _, P::Output>(p, ParaClosure)
 }
 
 #[test]
 fn test_lex() {
-    assert_eq!(lex::<_, _, char>(char('a')).parse("a      "), Ok(('a', "")))
+    assert_eq!(lex(char('a')).parse("a      "), Ok(('a', "")))
 }
 
 #[test]
@@ -99,16 +99,16 @@ fn test_closure() {
     use combine::char::string;
 
     assert_eq!(
-        closure::<_, _, &str>(string("true"), &('(', ')')).parse("(((true)))"),
+        closure(string("true"), &('(', ')')).parse("(((true)))"),
         Ok(("true", ""))
     );
 
-    assert!(closure::<_, _, &str>(string("true"), &('(', ')'))
+    assert!(closure(string("true"), &('(', ')'))
         .parse("(((true))")
         .is_err());
 
     assert_eq!(
-        closure::<_, _, &str>(string("true"), &('(', ')')).parse("true"),
+        closure(string("true"), &('(', ')')).parse("true"),
         Ok(("true", ""))
     );
 }

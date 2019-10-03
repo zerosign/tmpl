@@ -1,9 +1,7 @@
 use combine::{
     char::{space, string},
-    error::ParseError,
-    range::take_until_range,
-    stream::{RangeStream, Stream},
-    Parser,
+    parser::range::take_until_range,
+    ParseError, Parser, Stream,
 };
 
 //
