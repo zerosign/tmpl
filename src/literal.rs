@@ -15,7 +15,6 @@ use crate::{
 use combine::{
     any, between,
     char::{char, digit, spaces, string},
-    easy,
     error::Consumed,
     many, many1, optional,
     parser::function::parser as fparser,
@@ -209,6 +208,11 @@ fn test_number_literal() {
         number_literal().parse("0.011111111"),
         Ok((Literal::double(0.011111111), ""))
     );
+
+    assert_eq!(
+        number_literal().parse("(0.0)"),
+        Ok((Literal::double(0.0), ""))
+    );
 }
 
 #[test]
@@ -216,6 +220,11 @@ fn test_bool_literal() {
     assert_eq!(bool_literal().parse("true"), Ok((Literal::bool(true), "")));
     assert_eq!(
         bool_literal().parse("false"),
+        Ok((Literal::bool(false), ""))
+    );
+
+    assert_eq!(
+        bool_literal().parse("((false))"),
         Ok((Literal::bool(false), ""))
     );
 }
@@ -229,6 +238,11 @@ fn test_string_literal() {
 
     assert_eq!(
         string_literal().parse(r#""""#),
+        Ok((Literal::string(""), ""))
+    );
+
+    assert_eq!(
+        string_literal().parse(r#"((""))"#),
         Ok((Literal::string(""), ""))
     );
 
