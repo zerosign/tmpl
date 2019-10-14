@@ -17,10 +17,10 @@ use combine::{
 // IdentLike = (Digit | Letter | "_")* "'"* .
 //
 #[inline]
-pub fn ident_like<I>() -> impl Parser<Input = I, Output = String>
+pub fn ident_like<Input>() -> impl Parser<Input, Output = String>
 where
-    I: Stream<Item = char>,
-    I::Error: ParseError<I::Item, I::Range, I::Position>,
+    Input: Stream<Token = char>,
+    Input::Error: ParseError<Input::Token, Input::Range, Input::Position>,
 {
     many(digit().or(letter()).or(char('_')))
         .and(many(char('\'')))
@@ -31,12 +31,12 @@ where
 // Ident = Lower IdentLike .
 //
 #[inline]
-pub fn ident<I>() -> impl Parser<Input = I, Output = Ident>
+pub fn ident<Input>() -> impl Parser<Input, Output = Ident>
 where
-    I: Stream<Item = char>,
-    I::Error: ParseError<I::Item, I::Range, I::Position>,
+    Input: Stream<Token = char>,
+    Input::Error: ParseError<Input::Token, Input::Range, Input::Position>,
 {
-    lower()
+    lower::<Input>()
         .and(ident_like())
         .map(|(ch, mut b)| {
             b.insert(0, ch);
@@ -46,12 +46,12 @@ where
 }
 
 #[inline]
-pub fn macro_ident<I>() -> impl Parser<Input = I, Output = Ident>
+pub fn macro_ident<Input>() -> impl Parser<Input, Output = Ident>
 where
-    I: Stream<Item = char>,
-    I::Error: ParseError<I::Item, I::Range, I::Position>,
+    Input: Stream<Token = char>,
+    Input::Error: ParseError<Input::Token, Input::Range, Input::Position>,
 {
-    lower()
+    lower::<Input>()
         .and(ident_like())
         .map(|(ch, mut b)| {
             b.insert(0, ch);
@@ -69,12 +69,12 @@ where
 // TypeDecl = Upper IdentLike .
 //
 #[inline]
-pub fn type_decl<I>() -> impl Parser<Input = I, Output = Ident>
+pub fn type_decl<Input>() -> impl Parser<Input, Output = Ident>
 where
-    I: Stream<Item = char>,
-    I::Error: ParseError<I::Item, I::Range, I::Position>,
+    Input: Stream<Token = char>,
+    Input::Error: ParseError<Input::Token, Input::Range, Input::Position>,
 {
-    upper()
+    upper::<Input>()
         .and(ident_like())
         .map(|(ch, mut b)| {
             b.insert(0, ch);

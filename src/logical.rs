@@ -12,8 +12,8 @@ use combine::{
 // pub fn logical_stmt_if<I, P, A>(block: P, alt: A) -> impl Parser<Input = I, Output = ()>
 // where
 //     P: Parser<Input = I, Output = ()>,
-//     I: Stream<Item = char>,
-//     I::Error: ParseError<I::Item, I::Range, I::Position>,
+//     I: Stream<Token = char>,
+//     I::Error: ParseError<I::Token, I::Range, I::Position>,
 // {
 //     string("{{").with(spaces().with(string("if")))
 // }
@@ -26,8 +26,8 @@ use combine::{
 // pub fn logical_stmt_alt<I, P, A>(block: P. alt: A) -> impl Parser<Input = I, Output = ()>
 // where
 //     P: Parser<Input = I, Output = ()>,
-//     I: Stream<Item = char>,
-//     I::Error: ParseError<I::Item, I::Range, I::Position>,
+//     I: Stream<Token = char>,
+//     I::Error: ParseError<I::Token, I::Range, I::Position>,
 // {
 //     string("elsif").map(move |_| ())
 // }
@@ -40,7 +40,7 @@ use combine::{
 // pub fn logical_stmt_else<I, P>() -> impl Parser<Input = I, Output = ()>
 // where
 //     P: Parser<Input = I, Output = ()>,
-//     I: Stream<Item = char>,
-//     I::Error: ParseError<I::Item, I::Range, I::Position>,
+//     I: Stream<Token = char>,
+//     I::Error: ParseError<I::Token, I::Range, I::Position>,
 // {
 // }

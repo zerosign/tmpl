@@ -30,10 +30,10 @@ use std::convert::TryFrom;
 // number_literal op arithmetic_expr
 // arithmetic_expr op number_literal
 
-fn arithmetic_expr<I>() -> impl Parser<Input = I, Output = ArithmExpr>
+fn arithmetic_expr<Input>() -> impl Parser<Input, Output = ArithmExpr>
 where
-    I: Stream<Item = char>,
-    I::Error: ParseError<I::Item, I::Range, I::Position>,
+    Input: Stream<Token = char>,
+    Input::Error: ParseError<Input::Token, Input::Range, Input::Position>,
 {
     choice([literal::number_literal()
         .and(operator::arithmetic_op())

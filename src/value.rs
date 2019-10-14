@@ -20,10 +20,10 @@ use combine::{
     Parser,
 };
 
-pub fn literal<I>() -> impl Parser<Input = I, Output = Value>
+pub fn literal<Input>() -> impl Parser<Input, Output = Value>
 where
-    I: Stream<Item = char>,
-    I::Error: ParseError<I::Item, I::Range, I::Position>,
+    Input: Stream<Token = char>,
+    Input::Error: ParseError<Input::Token, Input::Range, Input::Position>,
 {
     para::<_, _, Literal>(choice((
         literal::bool_literal(),
@@ -34,10 +34,10 @@ where
 }
 
 #[inline]
-pub fn dict<I>() -> impl Parser<Input = I, Output = Value>
+pub fn dict<Input>() -> impl Parser<Input, Output = Value>
 where
-    I: Stream<Item = char>,
-    I::Error: ParseError<I::Item, I::Range, I::Position>,
+    Input: Stream<Token = char>,
+    Input::Error: ParseError<Input::Token, Input::Range, Input::Position>,
 {
     let field = (
         literal::raw_string(),
@@ -57,16 +57,16 @@ where
 //
 // pub fn optional<T>(p: P) -> impl Parser<Input = I, Output = Literal::Optional>
 // where
-//     I: Stream<Item = char>,
-//     I::Error: ParseError<I::Item, I::Range, I::Position>,
+//     I: Stream<Token = char>,
+//     I::Error: ParseError<I::Token, I::Range, I::Position>,
 // {
 //     string("null")
 // }
 
-pub fn array<I>() -> impl Parser<Input = I, Output = Value>
+pub fn array<Input>() -> impl Parser<Input, Output = Value>
 where
-    I: Stream<Item = char>,
-    I::Error: ParseError<I::Item, I::Range, I::Position>,
+    Input: Stream<Token = char>,
+    Input::Error: ParseError<Input::Token, Input::Range, Input::Position>,
 {
     between(
         char('[').skip(spaces()),
@@ -78,8 +78,8 @@ where
 
 parser! {
     #[inline]
-    pub fn static_value_[I]()(I) -> Value
-    where [ I: Stream<Item = char> ]
+    pub fn static_value_[Input]()(Input) -> Value
+    where [ Input: Stream<Token = char> ]
     {
 
         choice((literal(), array(), dict()))
@@ -87,10 +87,10 @@ parser! {
 }
 
 #[inline]
-pub fn static_value<I>() -> impl Parser<Input = I, Output = Value>
+pub fn static_value<Input>() -> impl Parser<Input, Output = Value>
 where
-    I: Stream<Item = char>,
-    I::Error: ParseError<I::Item, I::Range, I::Position>,
+    Input: Stream<Token = char>,
+    Input::Error: ParseError<Input::Token, Input::Range, Input::Position>,
 {
     static_value_()
 }

@@ -11,8 +11,8 @@ use combine::{
 #[inline]
 fn comment_block<'a, I>() -> impl Parser<Input = I, Output = Comment<'a>>
 where
-    I: RangeStream<Item = char, Range = &'a str>,
-    I::Error: ParseError<I::Item, I::Range, I::Position>,
+    I: RangeStream<Token = char, Range = &'a str>,
+    I::Error: ParseError<I::Token, I::Range, I::Position>,
 {
     // updates
     string("{#")

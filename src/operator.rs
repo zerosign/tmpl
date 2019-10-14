@@ -1,6 +1,6 @@
 use combine::{
     char::string,
-    error::{ParseError, StreamError, StringStreamError},
+    error::{ParseError},
     parser::choice::choice,
     unexpected_any, value, Parser, Stream,
 };
@@ -10,10 +10,10 @@ use std::convert::TryFrom;
 use crate::{ast, util::lex};
 
 #[inline]
-pub fn arithmetic_op<I>() -> impl Parser<Input = I, Output = ast::ArithmOp>
+pub fn arithmetic_op<Input>() -> impl Parser<Input, Output = ast::ArithmOp>
 where
-    I: Stream<Item = char>,
-    I::Error: ParseError<I::Item, I::Range, I::Position>,
+    Input: Stream<Token = char>,
+    Input::Error: ParseError<Input::Token, Input::Range, Input::Position>,
 {
     let operator = lex(choice((
         string("+"),
@@ -31,10 +31,10 @@ where
 }
 
 #[inline]
-pub fn logical_op<I>() -> impl Parser<Input = I, Output = ast::LogicalOp>
+pub fn logical_op<Input>() -> impl Parser<Input, Output = ast::LogicalOp>
 where
-    I: Stream<Item = char>,
-    I::Error: ParseError<I::Item, I::Range, I::Position>,
+    Input: Stream<Token = char>,
+    Input::Error: ParseError<Input::Token, Input::Range, Input::Position>,
 {
     let operator = lex(choice((
         string("!="),
@@ -53,10 +53,10 @@ where
 }
 
 #[inline]
-pub fn bool_op<I>() -> impl Parser<Input = I, Output = ast::BoolOp>
+pub fn bool_op<Input>() -> impl Parser<Input, Output = ast::BoolOp>
 where
-    I: Stream<Item = char>,
-    I::Error: ParseError<I::Item, I::Range, I::Position>,
+    Input: Stream<Token = char>,
+    Input::Error: ParseError<Input::Token, Input::Range, Input::Position>,
 {
     let operator = lex(choice((string("||"), string("&&"))));
 

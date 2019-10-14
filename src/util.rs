@@ -36,11 +36,11 @@ impl iter::Extend<char> for StackSize {
 //
 //
 #[inline]
-pub fn lex<I, P>(p: P) -> impl Parser<Input = I, Output = P::Output>
+pub fn lex<Input, P, O>(p: P) -> impl Parser<Input, Output = P::Output>
 where
-    P: Parser<Input = I>,
-    I: Stream<Item = char>,
-    I::Error: ParseError<I::Item, I::Range, I::Position>,
+    P: Parser<Input, Output = O>,
+    Input: Stream<Token = char>,
+    Input::Error: ParseError<Input::Token, Input::Range, Input::Position>,
 {
     p.skip(spaces())
 }
@@ -53,20 +53,20 @@ where
 // This parser are stacksafe.
 //
 #[inline]
-pub fn closure<I, P, O>(
+pub fn closure<Input, P, O>(
     p: P,
     closure: &'static (char, char),
-) -> impl Parser<Input = I, Output = P::Output>
+) -> impl Parser<Input, Output = P::Output>
 where
-    I: Stream<Item = char>,
-    P: Parser<Input = I, Output = O>,
+    Input: Stream<Token = char>,
+    P: Parser<Input, Output = O>,
     O: Clone,
-    I::Error: ParseError<I::Item, I::Range, I::Position>,
+    Input::Error: ParseError<Input::Token, Input::Range, Input::Position>,
 {
-    repeat::many::<StackSize, _>(lex(char(closure.0)))
+    repeat::many::<StackSize, Input, _>(lex(char(closure.0)))
         .and(lex(p))
         .then(move |(stack, v)| {
-            repeat::count::<StackSize, _>(stack.size(), char(closure.1)).then(move |x| {
+            repeat::count::<StackSize, Input, _>(stack.size(), char(closure.1)).then(move |x| {
                 if x == stack {
                     value(v.clone()).left()
                 } else {
@@ -79,12 +79,12 @@ where
 const ParaClosure: &'static (char, char) = &('(', ')');
 
 #[inline]
-pub fn para<I, P, O>(p: P) -> impl Parser<Input = I, Output = P::Output>
+pub fn para<Input, P, O>(p: P) -> impl Parser<Input, Output = P::Output>
 where
-    I: Stream<Item = char>,
-    P: Parser<Input = I, Output = O>,
+    Input: Stream<Token = char>,
+    P: Parser<Input, Output = O>,
     O: Clone,
-    I::Error: ParseError<I::Item, I::Range, I::Position>,
+    Input::Error: ParseError<Input::Token, Input::Range, Input::Position>,
 {
     closure::<_, _, P::Output>(p, ParaClosure)
 }

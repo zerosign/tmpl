@@ -22,10 +22,10 @@ use combine::{
 };
 
 #[inline]
-pub fn bool_literal<I>() -> impl Parser<Input = I, Output = Literal>
+pub fn bool_literal<Input>() -> impl Parser<Input, Output = Literal>
 where
-    I: Stream<Item = char>,
-    I::Error: ParseError<I::Item, I::Range, I::Position>,
+    Input: Stream<Token = char>,
+    Input::Error: ParseError<Input::Token, Input::Range, Input::Position>,
 {
     para(
         string("true")
@@ -54,14 +54,14 @@ fn escaped_str_chars(c: char) -> Option<char> {
 //
 //
 #[inline]
-pub fn escaped_char<I, M>(matcher: M) -> impl Parser<Input = I, Output = char>
+pub fn escaped_char<Input, M>(matcher: M) -> impl Parser<Input, Output = char>
 where
-    I: Stream<Item = char>,
-    I::Error: ParseError<I::Item, I::Range, I::Position>,
-    M: FnMut(I::Item) -> Option<char> + Copy,
+    Input: Stream<Token = char>,
+    Input::Error: ParseError<Input::Token, Input::Range, Input::Position>,
+    M: FnMut(Input::Token) -> Option<char> + Copy,
 {
     // this equal to pointer lookahead but done lazily
-    fparser(move |input: &mut I| {
+    fparser(move |input: &mut Input| {
         // scan lazily first char
         let (c, consumed) = any().parse_lazy(input).into_result()?;
 
@@ -72,17 +72,17 @@ where
             '\\' => {
                 consumed.combine(move |_| satisfy_map(matcher).parse_stream(input).into_result())
             }
-            '"' => Err(Consumed::Empty(I::Error::empty(input.position()).into())),
+            '"' => Err(Consumed::Empty(Input::Error::empty(input.position()).into())),
             _ => Ok((c, consumed)),
         }
     })
 }
 
 #[inline]
-pub fn raw_string<I>() -> impl Parser<Input = I, Output = String>
+pub fn raw_string<Input>() -> impl Parser<Input, Output = String>
 where
-    I: Stream<Item = char>,
-    I::Error: ParseError<I::Item, I::Range, I::Position>,
+    Input: Stream<Token = char>,
+    Input::Error: ParseError<Input::Token, Input::Range, Input::Position>,
 {
     between(
         char('"'),
@@ -93,10 +93,10 @@ where
 }
 
 #[inline]
-pub fn string_literal<I>() -> impl Parser<Input = I, Output = Literal>
+pub fn string_literal<Input>() -> impl Parser<Input, Output = Literal>
 where
-    I: Stream<Item = char>,
-    I::Error: ParseError<I::Item, I::Range, I::Position>,
+    Input: Stream<Token = char>,
+    Input::Error: ParseError<Input::Token, Input::Range, Input::Position>,
 {
     para(raw_string().map(Literal::String))
 }
@@ -105,10 +105,10 @@ where
 //
 //
 #[inline]
-fn integer<I>() -> impl Parser<Input = I, Output = i64>
+fn integer<Input>() -> impl Parser<Input, Output = i64>
 where
-    I: Stream<Item = char>,
-    I::Error: ParseError<I::Item, I::Range, I::Position>,
+    Input: Stream<Token = char>,
+    Input::Error: ParseError<Input::Token, Input::Range, Input::Position>,
 {
     many1(digit()).then(|s: String| {
         if s.len() > 1 && s.starts_with('0') {
@@ -133,10 +133,10 @@ where
 //
 //
 #[inline]
-fn fractional<I>() -> impl Parser<Input = I, Output = f64>
+fn fractional<Input>() -> impl Parser<Input, Output = f64>
 where
-    I: Stream<Item = char>,
-    I::Error: ParseError<I::Item, I::Range, I::Position>,
+    Input: Stream<Token = char>,
+    Input::Error: ParseError<Input::Token, Input::Range, Input::Position>,
 {
     many(digit()).then(move |mut digits: String| {
         digits.insert(0, '.');
@@ -153,10 +153,10 @@ where
 //
 //
 #[inline]
-pub fn number_literal<I>() -> impl Parser<Input = I, Output = Literal>
+pub fn number_literal<Input>() -> impl Parser<Input, Output = Literal>
 where
-    I: Stream<Item = char>,
-    I::Error: ParseError<I::Item, I::Range, I::Position>,
+    Input: Stream<Token = char>,
+    Input::Error: ParseError<Input::Token, Input::Range, Input::Position>,
 {
     para(
         optional(lex(char('-')))
