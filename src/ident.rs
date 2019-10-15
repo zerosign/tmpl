@@ -9,7 +9,8 @@
 use crate::ast::Ident;
 use combine::{
     many,
-    parser::char::{char, digit, letter, lower, upper},
+    parser::char::{digit, letter, lower, upper},
+    token,
     ParseError, Parser, Stream,
 };
 
@@ -22,8 +23,8 @@ where
     Input: Stream<Token = char>,
     Input::Error: ParseError<Input::Token, Input::Range, Input::Position>,
 {
-    many(digit().or(letter()).or(char('_')))
-        .and(many(char('\'')))
+    many(digit().or(letter()).or(token('_')))
+        .and(many(token('\'')))
         .map(|(lhs, rhs): (String, String)| [lhs, rhs].concat())
 }
 
@@ -57,7 +58,7 @@ where
             b.insert(0, ch);
             b
         })
-        .and(char('!'))
+        .and(token('!'))
         .map(|(mut b, ch)| {
             b.push(ch);
             b

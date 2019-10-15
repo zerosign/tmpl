@@ -1,8 +1,10 @@
 use combine::{
+    parser,
     parser::{
         char::{char, spaces},
         repeat,
     },
+    between,
     unexpected_any, value, ParseError, Parser, Stream,
 };
 
@@ -45,6 +47,21 @@ where
     p.skip(spaces())
 }
 
+// #[inline]
+// pub fn stackable_closure<Input, P, O>(
+//     p: P,
+//     closure: &'static (char, char),
+// ) -> impl Parser<Input, Output = P::Output>
+// where
+//     Input: Stream<Token = char>,
+//     P: Parser<Input, Output = O>,
+//     O: Clone,
+//     Input::Error: ParseError<Input::Token, Input::Range, Input::Position>,
+// {
+
+// }
+
+
 //
 // Closure helper for any closure like pattern that able to have recursive paren.
 //
@@ -55,25 +72,22 @@ where
 #[inline]
 pub fn closure<Input, P, O>(
     p: P,
-    closure: &'static (char, char),
-) -> impl Parser<Input, Output = P::Output>
-where
+    bracket: &'static (char, char),
+) -> impl Parser<Input, Output = P::Output> where
     Input: Stream<Token = char>,
     P: Parser<Input, Output = O>,
     O: Clone,
-    Input::Error: ParseError<Input::Token, Input::Range, Input::Position>,
-{
-    repeat::many::<StackSize, Input, _>(lex(char(closure.0)))
-        .and(lex(p))
-        .then(move |(stack, v)| {
-            repeat::count::<StackSize, Input, _>(stack.size(), char(closure.1)).then(move |x| {
-                if x == stack {
-                    value(v.clone()).left()
-                } else {
-                    unexpected_any(closure.1).right()
-                }
-            })
-        })
+    Input::Error: ParseError<Input::Token, Input::Range, Input::Position>, {
+    closure_(p, bracket)
+}
+
+
+parser! {
+    #[inline]
+    pub fn closure_[Input, P, O](p: P, bracket: &'static (char, char))(Input) -> P::Output
+    where [ Input: Stream<Token = char>, P: Parser<Input, Output = O>, O: Clone ] {
+        between(lex(char(bracket.0)), lex(char(bracket.1)), closure(p, bracket))
+    }
 }
 
 const ParaClosure: &'static (char, char) = &('(', ')');
@@ -91,7 +105,7 @@ where
 
 #[test]
 fn test_lex() {
-    assert_eq!(lex(char('a')).parse("a      "), Ok(('a', "")))
+    assert_eq!(lex(token('a')).parse("a      "), Ok(('a', "")))
 }
 
 #[test]

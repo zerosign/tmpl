@@ -85,8 +85,8 @@ where
     Input::Error: ParseError<Input::Token, Input::Range, Input::Position>,
 {
     between(
-        char('"'),
-        char('"').skip(spaces()),
+        token('"'),
+        token('"').skip(spaces()),
         many(escaped_char(escaped_str_chars)),
     )
     .expected("string")
@@ -159,10 +159,10 @@ where
     Input::Error: ParseError<Input::Token, Input::Range, Input::Position>,
 {
     para(
-        optional(lex(char('-')))
+        optional(lex(token('-')))
             .map(|c| if c.is_some() { -1 } else { 1 })
             .and(integer())
-            .and(optional(char('.').with(fractional())))
+            .and(optional(token('.').with(fractional())))
             .map(|arg| match arg {
                 ((mult, exp), Some(frac)) => {
                     Literal::Number(Number::Double((exp as f64 + frac) * (mult as f64)))

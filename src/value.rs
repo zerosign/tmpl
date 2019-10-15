@@ -12,7 +12,8 @@ use crate::{
     util::para,
 };
 use combine::{
-    char::{char, spaces},
+    char::{ spaces},
+    token,
     error::ParseError,
     parser,
     parser::{choice::choice, repeat::sep_by, sequence::between},
@@ -41,13 +42,13 @@ where
 {
     let field = (
         literal::raw_string(),
-        char(':').skip(spaces()),
+        token(':').skip(spaces()),
         static_value(),
     )
         .map(|t| (t.0, t.2));
-    let fields = sep_by(field, char(',').skip(spaces()));
+    let fields = sep_by(field, token(',').skip(spaces()));
 
-    between(char('{').skip(spaces()), char('}').skip(spaces()), fields)
+    between(token('{').skip(spaces()), token('}').skip(spaces()), fields)
         .map(Value::Dictionary)
         .expected("dictionary")
 }
@@ -69,9 +70,9 @@ where
     Input::Error: ParseError<Input::Token, Input::Range, Input::Position>,
 {
     between(
-        char('[').skip(spaces()),
-        char(']').skip(spaces()),
-        sep_by(static_value(), char(',').skip(spaces())),
+        token('[').skip(spaces()),
+        token(']').skip(spaces()),
+        sep_by(static_value(), token(',').skip(spaces())),
     )
     .map(Value::Array)
 }

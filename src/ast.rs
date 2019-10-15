@@ -369,7 +369,7 @@ pub enum Expr {
     ArithmExpr(ArithmExpr),
     LogicalExpr(LogicalExpr),
     NegatedExpr(NegatedExpr),
-    NegatifExpr(ArithmExpr),
+    NegativeExpr(ArithmExpr),
     LiteralExpr(Literal),
 }
 
