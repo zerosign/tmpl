@@ -85,6 +85,25 @@ macro_rules! array {
     [$($val:expr),*] => (Value::Array(<[_]>::into_vec(Box::new([$(Value::from($val)),*]))));
 }
 
+//
+// copied from https://github.com/bluss/maplit/blob/master/src/lib.rs#L46-L61
+macro_rules! dict {
+        (@single $($x:tt)*) => (());
+        (@count $($rest:expr),*) => (<[()]>::len(&[$(dict!(@single $rest)),*]));
+
+        ($($key:expr => $value:expr,)+) => { dict!($(String::from($key) => Value::from($value)),+) };
+        ($($key:expr => $value:expr),*) => {
+            {
+                let _cap = dict!(@count $($key),*);
+                let mut _map = ::std::collections::HashMap::with_capacity(_cap);
+                $(
+                    let _ = _map.insert(String::from($key), Value::from($value));
+                )*
+                Value::Dictionary(_map)
+            }
+        };
+    }
+
 // value =
 //   value = literal
 //   dictionary<string, value>
@@ -191,4 +210,33 @@ fn test_macro_rule_complex_array() {
             Value::Array(vec![Value::integer(1), Value::integer(2)])
         ])
     );
+}
+
+#[test]
+fn test_macro_rule_empty_dict() {
+    assert_eq!(dict! {}, Value::dict());
+}
+
+#[test]
+fn test_macro_rule_literal_dict() {
+    let sample = dict! {
+        "test" => dict! {
+            "hello" => array!["world"],
+        }
+    };
+
+    let expected = {
+        let mut inner = HashMap::new();
+        inner.insert(String::from("test"), {
+            let mut inner2 = HashMap::new();
+            inner2.insert(
+                String::from("hello"),
+                Value::Array(vec![Value::string("world")]),
+            );
+            Value::Dictionary(inner2)
+        });
+        Value::Dictionary(inner)
+    };
+
+    assert_eq!(sample, expected);
 }
