@@ -1,6 +1,6 @@
 use crate::error::ParseError;
-use std::{any::TypeId, collections::HashMap, convert::TryFrom, iter::IntoIterator};
-use tmpl_value::types::{Literal, Number, Value};
+use std::{any::TypeId, convert::TryFrom};
+use tmpl_value::types::Literal;
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum LogicalOp {
@@ -14,7 +14,7 @@ pub enum LogicalOp {
 
 impl LogicalOp {
     #[inline]
-    pub fn operator(&self) -> &'static str {
+    pub fn operator(self) -> &'static str {
         match self {
             Self::NEQ => "!=",
             Self::EQ => "==",
@@ -59,7 +59,7 @@ pub enum ArithmOp {
 
 impl ArithmOp {
     #[inline]
-    pub fn operator(&self) -> &'static str {
+    pub fn operator(self) -> &'static str {
         match self {
             Self::Add => "+",
             Self::Subtract => "-",
@@ -99,7 +99,7 @@ pub enum BoolOp {
 
 impl BoolOp {
     #[inline]
-    pub fn operator(&self) -> &'static str {
+    pub fn operator(self) -> &'static str {
         match self {
             Self::Or => "||",
             Self::And => "&&",

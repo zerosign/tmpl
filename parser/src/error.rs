@@ -33,10 +33,7 @@ pub enum ParseError<'a> {
 
 impl<'a> ParseError<'a> {
     pub fn operator(source: &'a str, target: TypeId) -> Self {
-        Self::OperatorError(OperatorError {
-            source: source,
-            target: target,
-        })
+        Self::OperatorError(OperatorError { source, target })
     }
 }
 

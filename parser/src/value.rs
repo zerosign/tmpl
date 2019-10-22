@@ -27,7 +27,7 @@ where
         literal::string_literal(),
         literal::number_literal(),
     )))
-    .map(|l| Value::Literal(l))
+    .map(Value::Literal)
 }
 
 #[inline]

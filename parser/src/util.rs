@@ -1,8 +1,4 @@
-use combine::{
-    between, parser,
-    parser::{char::spaces, repeat},
-    token, unexpected_any, value, ParseError, Parser, Stream,
-};
+use combine::{between, parser, parser::char::spaces, token, ParseError, Parser, Stream};
 
 use std::iter;
 
@@ -86,7 +82,7 @@ parser! {
     }
 }
 
-const ParaClosure: &'static (char, char) = &('(', ')');
+const ParaClosure: (char, char) = ('(', ')');
 
 #[inline]
 pub fn para<Input, P, O>(p: P) -> impl Parser<Input, Output = P::Output>
@@ -96,7 +92,7 @@ where
     O: Clone,
     Input::Error: ParseError<Input::Token, Input::Range, Input::Position>,
 {
-    closure::<_, _, P::Output>(p, ParaClosure)
+    closure::<_, _, P::Output>(p, &ParaClosure)
 }
 
 #[test]

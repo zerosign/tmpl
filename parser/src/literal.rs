@@ -17,7 +17,7 @@ use combine::{
     parser::function::parser as fparser,
     satisfy_map, token, unexpected_any, value, ParseError, Parser, Stream,
 };
-use tmpl_value::types::{Literal, Number, Value};
+use tmpl_value::types::{Literal, Number};
 
 #[inline]
 pub fn bool_literal<Input>() -> impl Parser<Input, Output = Literal>
