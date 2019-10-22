@@ -108,3 +108,33 @@ impl Value {
         )
     }
 }
+
+// @TODO: @zerosign array!
+//
+// convert any primitive values in array declaration into
+// literal values automatically
+// ```
+// assert_eq!(array!([1, 2, [2]]), Value::Array([
+//    Literal::Number(Number::Integer(1)),
+//    Literal::Number(Number::Integer(1)),
+//    Value::Array([
+//       Literal::Number(Number::Integer(2)),
+//    ]),
+// ]));
+// ```
+//
+macro_rules! array {
+
+}
+
+// TODO: @zerosign dict!
+//
+// convert any primitive values including array to value literal directly.
+// ```
+// assert_eq!(dict!(
+//
+// ))
+// ```
+macro_rules! dict {
+
+}
