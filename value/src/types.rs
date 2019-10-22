@@ -80,6 +80,11 @@ literal_conv!(
     Literal::bool    => [bool]
 );
 
+macro_rules! array {
+    [] => (Value::Array(Vec::<Value>::new()));
+    [$($val:expr),*] => (Value::Array(<[_]>::into_vec(Box::new([$(Value::from($val)),*]))));
+}
+
 // value =
 //   value = literal
 //   dictionary<string, value>
@@ -96,45 +101,94 @@ pub enum Value {
 }
 
 impl Value {
-    pub fn literal_array<I, V>(i: I) -> Value
+    #[inline]
+    pub fn integer<V>(v: V) -> Value
     where
-        I: IntoIterator<Item = V>,
-        V: Into<Literal>,
+        V: Into<i64>,
     {
-        Value::Array(
-            i.into_iter()
-                .map(|v| Value::Literal(V::into(v)))
-                .collect::<Vec<Value>>(),
-        )
+        Value::Literal(Literal::integer(v))
+    }
+
+    #[inline]
+    pub fn double<V>(v: V) -> Value
+    where
+        V: Into<f64>,
+    {
+        Value::Literal(Literal::double(v))
+    }
+
+    #[inline]
+    pub fn string<V>(v: V) -> Value
+    where
+        V: Into<String>,
+    {
+        Value::Literal(Literal::string(v))
+    }
+
+    #[inline]
+    pub fn dict() -> Value {
+        Value::Dictionary(HashMap::new())
+    }
+
+    #[inline]
+    pub fn list() -> Value {
+        Value::Array(vec![])
+    }
+
+    #[inline]
+    pub fn bool<V>(v: V) -> Value
+    where
+        V: Into<bool>,
+    {
+        Value::Literal(Literal::bool(v))
     }
 }
 
-// @TODO: @zerosign array!
-//
-// convert any primitive values in array declaration into
-// literal values automatically
-// ```
-// assert_eq!(array!([1, 2, [2]]), Value::Array([
-//    Literal::Number(Number::Integer(1)),
-//    Literal::Number(Number::Integer(1)),
-//    Value::Array([
-//       Literal::Number(Number::Integer(2)),
-//    ]),
-// ]));
-// ```
-//
-// macro_rules! array {
+macro_rules! value_conv {
+    ($($conv:path => [$($src:ty),*]),*) => {
+        $($(impl From<$src> for Value {
 
-// }
+            #[inline]
+            fn from(v: $src) -> Self {
+                $conv(v)
+            }
+        })*)*
+    }
+}
 
-// TODO: @zerosign dict!
-//
-// convert any primitive values including array to value literal directly.
-// ```
-// assert_eq!(dict!(
-//
-// ))
-// ```
-// macro_rules! dict {
+value_conv!(
+    Value::integer => [u8, u16, u32, i8, i16, i32, i64],
+    Value::double  => [f32, f64],
+    Value::string  => [String, &'static str],
+    Value::bool    => [bool]
+);
 
-// }
+#[test]
+fn test_macro_rule_empty_array() {
+    assert_eq!(array![], Value::Array(vec![]));
+}
+
+#[test]
+fn test_macro_rule_literal_array() {
+    assert_eq!(
+        array![1, 2, 3.2, 4, "test"],
+        Value::Array(vec![
+            Value::integer(1),
+            Value::integer(2),
+            Value::double(3.2),
+            Value::integer(4),
+            Value::string("test"),
+        ])
+    );
+}
+
+#[test]
+fn test_macro_rule_complex_array() {
+    assert_eq!(
+        array![1, array![1, 2]],
+        Value::Array(vec![
+            Value::integer(1),
+            Value::Array(vec![Value::integer(1), Value::integer(2)])
+        ])
+    );
+}
