@@ -186,6 +186,7 @@ pub enum Block<'a> {
 //     types: HashMap<_, _>,
 //     position: SourcePosition,
 // }
+
 //
 // Number representations in `tmpl`.
 //
@@ -196,7 +197,7 @@ pub enum Number {
 }
 
 // Option type repr
-type Optional<T> = Option<Box<T>>;
+pub type Optional<T> = Option<Box<T>>;
 
 // Most literal types.
 //
