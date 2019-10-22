@@ -26,7 +26,7 @@ pub enum Literal {
 
 impl Literal {
     #[inline]
-    pub(crate) fn integer<V>(v: V) -> Literal
+    pub fn integer<V>(v: V) -> Literal
     where
         V: Into<i64>,
     {
@@ -34,7 +34,7 @@ impl Literal {
     }
 
     #[inline]
-    pub(crate) fn double<V>(v: V) -> Literal
+    pub fn double<V>(v: V) -> Literal
     where
         V: Into<f64>,
     {
@@ -42,7 +42,7 @@ impl Literal {
     }
 
     #[inline]
-    pub(crate) fn string<V>(v: V) -> Literal
+    pub fn string<V>(v: V) -> Literal
     where
         V: Into<String>,
     {
@@ -50,7 +50,7 @@ impl Literal {
     }
 
     #[inline]
-    pub(crate) fn bool<V>(v: V) -> Literal
+    pub fn bool<V>(v: V) -> Literal
     where
         V: Into<bool>,
     {
@@ -123,9 +123,9 @@ impl Value {
 // ]));
 // ```
 //
-macro_rules! array {
+// macro_rules! array {
 
-}
+// }
 
 // TODO: @zerosign dict!
 //
@@ -135,6 +135,6 @@ macro_rules! array {
 //
 // ))
 // ```
-macro_rules! dict {
+// macro_rules! dict {
 
-}
+// }
