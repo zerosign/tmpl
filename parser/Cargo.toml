@@ -1,5 +1,5 @@
 [package]
-name = "tmpl"
+name = "tmpl-parser"
 version = "0.0.1"
 authors = ["zerosign <r1nlx0@gmail.com>"]
 edition = "2018"
